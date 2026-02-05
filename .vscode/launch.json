@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "PatientServiceApplication",
+            "mainClass": "com.pm.patient_service.PatientServiceApplication",
+            "projectName": "patient-service",
+            "cwd": "${workspaceFolder}/patient-service",
+            "vmArgs": "-Dspring.config.location=file:${workspaceFolder}/patient-service/src/main/resources/application.properties"
+        }
+    ]
+}
