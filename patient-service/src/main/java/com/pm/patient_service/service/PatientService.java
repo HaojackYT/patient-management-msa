@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
 import com.pm.patient_service.mapper.PaitentMapper;
 import com.pm.patient_service.model.Patient;
@@ -21,5 +22,10 @@ public class PatientService {
         List<Patient> patients = patientRepository.findAll();
 
         return patients.stream().map(PaitentMapper::toDTO).toList();
+    }
+
+    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
+        Patient newPatient = patientRepository.save(PaitentMapper.toModel(patientRequestDTO));
+        return PaitentMapper.toDTO(newPatient);
     }
 }
