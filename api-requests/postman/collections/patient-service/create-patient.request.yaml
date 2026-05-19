@@ -1,0 +1,48 @@
+$kind: http-request
+name: create-patient
+url: http://localhost:4000/patients
+method: POST
+body:
+  type: json
+  content: "// {\r
+
+    //   \"name\": \"John Doe\",\r
+
+    //   \"email\": \"test@example.com\",\r
+
+    //   \"address\": \"123 main street22\",\r
+
+    //   \"dateOfBirth\": \"1995-09-09\",\r
+
+    //   \"registeredDate\": \"2024-11-28\"\r
+
+    // }\r
+
+    // {\r
+
+    //   \"name\": \"John Doe\",\r
+
+    //   \"email\": \"test@example.com\",\r
+
+    //   \"address\": \"123 main street22\",\r
+
+    //   \"dateOfBirth\": \"1995-09-09\"\r
+
+    \r
+
+    // }\r
+
+    {\r
+
+    \  \"name\": \"John Doe\",\r
+
+    \  \"email\": \"john.doe@example.com\",\r
+
+    \  \"address\": \"123 main street22\",\r
+
+    \  \"dateOfBirth\": \"1995-09-09\",\r
+
+    \  \"registeredDate\": \"2024-11-28\"\r
+
+    }"
+order: 740750618766667

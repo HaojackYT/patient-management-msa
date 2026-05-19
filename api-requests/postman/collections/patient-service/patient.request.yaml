@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:4000/patients
+method: GET
+order: 1779010307478
