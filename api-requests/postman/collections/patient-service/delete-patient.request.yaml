@@ -1,0 +1,5 @@
+$kind: http-request
+name: delete-patient
+url: http://localhost:4000/patients/123e4567-e89b-12d3-a456-426614174000
+method: DELETE
+order: 3701462048830864
