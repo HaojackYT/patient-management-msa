@@ -4,17 +4,17 @@ url: http://localhost:4000/patients/123e4567-e89b-12d3-a456-426614174000
 method: PUT
 body:
   type: json
-  content: "{\r
+  content: "// {\r
 
-    \  \"name\": \"John Doe\",\r
+    //   \"name\": \"John Doe\",\r
 
-    \  \"email\": \"test@example.com\",\r
+    //   \"email\": \"test@example.com\",\r
 
-    \  \"address\": \"123 main street22\",\r
+    //   \"address\": \"123 main street22\",\r
 
-    \  \"dateOfBirth\": \"1995-09-09\"\r
+    //   \"dateOfBirth\": \"1995-09-09\"\r
 
-    }\r
+    // }\r
 
     // {\r
 
@@ -26,5 +26,17 @@ body:
 
     //   \"dateOfBirth\": \"1995-09-09\"\r
 
-    // }"
+    // }\r
+
+    {\r
+
+    \  \"name\": \"John Doe\",\r
+
+    \  \"email\": \"john.doe@example.com\",\r
+
+    \  \"address\": \"123 main street22\",\r
+
+    \  \"dateOfBirth\": \"1995-09-09\"\r
+
+    }"
 order: 2842967696924151
