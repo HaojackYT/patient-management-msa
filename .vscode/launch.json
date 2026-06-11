@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "BillingServiceApplication",
+            "request": "launch",
+            "mainClass": "com.pm.billing_service.BillingServiceApplication",
+            "projectName": "billing-service"
+        },
+        {
+            "type": "java",
             "request": "launch",
             "name": "PatientServiceApplication",
             "mainClass": "com.pm.patient_service.PatientServiceApplication",

@@ -5,7 +5,9 @@
         "lib/**/*.jar"
     ],
     "java.configuration.updateBuildConfiguration": "interactive",
+    "protobuf.protoc.path": "C:\\Installation\\protoc-35.0-win64\\bin",
     "conventionalCommits.scopes": [
-        "patient-service"
+        "patient-service",
+        "billing-service",
     ]
 }

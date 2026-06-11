@@ -1,0 +1,16 @@
+$kind: grpc-request
+url: localhost:9001
+methodPath: BillingService.CreateBillingAccount
+methodDescriptor: CuUBCgpyb290LnByb3RvIkwKDkJpbGxpbmdSZXF1ZXN0EhUKCXBhdGllbnRJZBgBIAEoCUICEAESEAoEbmFtZRgCIAEoCUICEAESEQoFZW1haWwYAyABKAlCAhABIjwKD0JpbGxpbmdSZXNwb25zZRIVCglhY2NvdW50SWQYASABKAlCAhABEhIKBnN0YXR1cxgCIAEoCUICEAEySwoOQmlsbGluZ1NlcnZpY2USOQoUQ3JlYXRlQmlsbGluZ0FjY291bnQSDy5CaWxsaW5nUmVxdWVzdBoQLkJpbGxpbmdSZXNwb25zZQ==
+message:
+  content: "{\r
+
+    \    \"patientId\": \"123e4567-e89b-12d3-a456-426614174000\",\r
+
+    \    \"name\": \"John Doe\",\r
+
+    \    \"email\": \"john.doe@example.com\"\r
+
+    }"
+schema:
+  source: auto
