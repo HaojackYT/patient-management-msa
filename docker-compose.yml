@@ -1,0 +1,54 @@
+services:
+  patient-service:
+    build: ./patient-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SQL_INIT_MODE=always
+    ports:
+      - ${PATIENT_SERVICE_PORT}:4000
+    networks:
+      - patient-management-msa
+    depends_on:
+      patient-service-db:
+        condition: service_healthy
+  
+  patient-service-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes: # named volume
+      - ${POSTGRES_DATA}:/var/lib/postgresql
+    networks:
+      - patient-management-msa
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s # run the health check every x seconds
+      timeout: 5s # a time limit of x seconds before marking the attempt as failed
+      retries: 5 # number of allowed failed attempts in a row before marking the container as unhealthy
+      start_period: 30s # warm-up time for the container before docker starts counting failures
+
+  billing-service:
+    build: ./billing-service
+    # environment:
+
+    ports:
+      - ${BILLING_SERVICE_PORT}:4001
+      - ${GRPC_SERVER_PORT}:9001
+    networks:
+      - patient-management-msa
+    # depends_on:
+
+volumes:
+  patient-service-db-data:
+
+networks:
+  patient-management-msa:
+    name: patient-management-msa
+    driver: bridge
