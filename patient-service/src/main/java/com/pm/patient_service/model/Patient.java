@@ -14,21 +14,21 @@ public class Patient {
     @Id
     @GeneratedValue
     private UUID id;
-    
+
     @NotNull
     private String name;
-    
+
     @NotNull
     @Email
     @Column(unique = true)
     private String email;
-    
+
     @NotNull
     private String address;
-    
+
     @NotNull
     private LocalDate dateOfBirth;
-    
+
     @NotNull
     private LocalDate registeredDate;
 

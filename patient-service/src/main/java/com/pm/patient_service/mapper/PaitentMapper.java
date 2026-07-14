@@ -8,6 +8,7 @@ import com.pm.patient_service.model.Patient;
 
 public class PaitentMapper {
     public static PatientResponseDTO toDTO(Patient patient) {
+
         PatientResponseDTO patientDTO = new PatientResponseDTO();
         patientDTO.setId(patient.getId().toString());
         patientDTO.setName(patient.getName());
@@ -18,6 +19,7 @@ public class PaitentMapper {
     }
 
     public static Patient toModel(PatientRequestDTO patientRequestDTO) {
+
         Patient patient = new Patient();
         patient.setName(patientRequestDTO.getName());
         patient.setEmail(patientRequestDTO.getEmail());
