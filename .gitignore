@@ -1,4 +1,4 @@
-db-volumes/
+schemas
 .env
 
 README.md

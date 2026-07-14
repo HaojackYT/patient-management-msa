@@ -32,11 +32,25 @@ body:
 
     // }\r
 
+    // {\r
+
+    //   \"name\": \"John Doe\",\r
+
+    //   \"email\": \"john.doe@example.com\",\r
+
+    //   \"address\": \"123 main street22\",\r
+
+    //   \"dateOfBirth\": \"1995-09-09\",\r
+
+    //   \"registeredDate\": \"2024-11-28\"\r
+
+    // }\r
+
     {\r
 
-    \  \"name\": \"John Doe\",\r
+    \  \"name\": \"John Doe 1\",\r
 
-    \  \"email\": \"john.doe@example.com\",\r
+    \  \"email\": \"john.doe1@example.com\",\r
 
     \  \"address\": \"123 main street22\",\r
 
