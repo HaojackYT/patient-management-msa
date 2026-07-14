@@ -2,7 +2,10 @@ package com.pm.billing_service.grpc;
 
 import net.devh.boot.grpc.server.service.GrpcService;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import billing.BillingRequest;
 import billing.BillingResponse;
@@ -11,10 +14,11 @@ import io.grpc.stub.StreamObserver;
 
 @GrpcService
 public class BillingGrpcService extends BillingServiceImplBase {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(
-            BillingGrpcService.class);
+    
+    private static final Logger log = LoggerFactory.getLogger(
+        BillingGrpcService.class);
 
-    // StreamObserver once the clients establishes a connection with the server,
+    // StreamObserver once the client establishes a connection with the server,
     // they can exchange data in real time
     @Override
     public void createBillingAccount(BillingRequest billingRequest, StreamObserver<BillingResponse> responseObserver) {
@@ -24,7 +28,7 @@ public class BillingGrpcService extends BillingServiceImplBase {
         // Business logic
 
         BillingResponse billingResponse = BillingResponse.newBuilder()
-                .setAccountId("12345")
+                .setAccountId(UUID.randomUUID().toString())
                 .setStatus("ACTIVE")
                 .build();
 
