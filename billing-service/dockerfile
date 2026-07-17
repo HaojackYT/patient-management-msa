@@ -2,24 +2,32 @@ FROM maven:3.9.16-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
+# Copy all POM files because root POM is an Aggregator that declares all modules
 COPY pom.xml .
+COPY grpc-contracts/pom.xml ./grpc-contracts/pom.xml
+COPY billing-service/pom.xml ./billing-service/pom.xml
+COPY patient-service/pom.xml ./patient-service/pom.xml
 
-# Cache dependencies
-RUN mvn dependency:go-offline -B
 
-COPY src ./src
-RUN mvn clean package
+RUN mvn dependency:go-offline -pl billing-service -am -B
+
+# billing-service is dependent on grpc-contracts
+COPY grpc-contracts/src ./grpc-contracts/src
+COPY billing-service/src ./billing-service/src
+
+# -pl specifies the module to build (patient-service)
+# -am builds all modules that the specified module depends on (grpc-contracts)
+RUN mvn clean package -pl billing-service -am -B -DskipTests
 
 FROM eclipse-temurin:21-jre AS runner
 
 WORKDIR /app
 
-COPY --from=builder /app/target/billing-service-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=builder /app/billing-service/target/billing-service-0.0.1-SNAPSHOT.jar ./app.jar
 
 # REST server port
 EXPOSE 4001
 # gRPC server port
 EXPOSE 9001
 
-# Use java stay alive (from jdk) to keep the container running
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,6 +1,8 @@
 services:
   patient-service:
-    build: ./patient-service
+    build:
+      context: . # is /patient-management-msa
+      dockerfile: patient-service/dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
@@ -37,7 +39,9 @@ services:
       start_period: 30s # warm-up time for the container before docker starts counting failures
 
   billing-service:
-    build: ./billing-service
+    build:
+      context: .
+      dockerfile: billing-service/dockerfile
     # environment:
 
     ports:
