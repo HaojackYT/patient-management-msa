@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.14</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>com.pm</groupId>
+	<artifactId>patient-management-msa</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<java.version>21</java.version>
+		<grpc.version>1.81.0</grpc.version>
+		<protobuf.version>3.25.5</protobuf.version>
+		<grpc-spring-boot-starter.version>3.1.0.RELEASE</grpc-spring-boot-starter.version>
+	</properties>
+
+	<modules>
+		<module>grpc-contracts</module>
+		<module>billing-service</module>
+		<module>patient-service</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+		
+			<!-- Internal modules -->
+			<dependency>
+				<groupId>com.pm</groupId>
+				<artifactId>grpc-contracts</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- Source: https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>${protobuf.version}</version>
+			</dependency>
+
+			<!-- gRPC -->
+
+			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-netty-shaded</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+
+			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-protobuf</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+
+			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-stub</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
+			
+			<!-- Source: https://mvnrepository.com/artifact/net.devh/grpc-spring-boot-starter -->
+			<dependency>
+				<groupId>net.devh</groupId>
+				<artifactId>grpc-spring-boot-starter</artifactId>
+				<version>${grpc-spring-boot-starter.version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+</project>

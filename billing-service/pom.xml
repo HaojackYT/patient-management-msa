@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.14</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>com.pm</groupId>
+		<artifactId>patient-management-msa</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<groupId>com.pm</groupId>
+
 	<artifactId>billing-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>billing-service</name>
 	<description/>
 	<url/>
@@ -26,12 +26,6 @@
 		<tag/>
 		<url/>
 	</scm>
-	
-	<properties>
-		<java.version>21</java.version>
-		<grpc.version>1.81.0</grpc.version>
-    	<protobuf.version>4.35.0</protobuf.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -47,120 +41,31 @@
 
 		<!-- GRPC -->
 
-		<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
-		<dependency>
-			<groupId>io.grpc</groupId>
-			<artifactId>grpc-netty-shaded</artifactId>
-			<version>${grpc.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
-		<dependency>
-			<groupId>io.grpc</groupId>
-			<artifactId>grpc-protobuf</artifactId>
-			<version>${grpc.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
-		<dependency>
-			<groupId>io.grpc</groupId>
-			<artifactId>grpc-stub</artifactId>
-			<version>${grpc.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Source: https://mvnrepository.com/artifact/org.apache.tomcat/annotations-api -->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>annotations-api</artifactId>
-			<version>6.0.53</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- Source: https://mvnrepository.com/artifact/net.devh/grpc-spring-boot-starter -->
 		<dependency>
 			<groupId>net.devh</groupId>
 			<artifactId>grpc-spring-boot-starter</artifactId>
-			<version>3.1.0.RELEASE</version>
-			<scope>compile</scope>
 		</dependency>
-		
-		<!-- Source: https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+
+		<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>${protobuf.version}</version>
-			<scope>compile</scope>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-netty-shaded</artifactId>
 		</dependency>
-		
+
+		<!-- Internal modules -->
+		<dependency>
+			<groupId>com.pm</groupId>
+			<artifactId>grpc-contracts</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
-		<extensions>
-			<!-- Source: https://mvnrepository.com/artifact/kr.motd.maven/os-maven-plugin -->
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>1.7.1</version>
-			</extension>
-
-			<!-- Source: https://mvnrepository.com/artifact/org.codehaus.mojo/build-helper-maven-plugin -->
-			<extension>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.6.1</version>
-			</extension>
-
-		</extensions>
-
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-
-			<!-- Add generated sources to the source directory -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.6.1</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>target/generated-sources/protobuf/java</source>
-								<source>target/generated-sources/protobuf/grpc-java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-      		<!-- PROTO -->
-			<plugin>
-				<groupId>org.xolstice.maven.plugins</groupId>
-				<artifactId>protobuf-maven-plugin</artifactId>
-				<version>0.6.1</version>
-				<configuration>
-					<protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-					<pluginId>grpc-java</pluginId>
-					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>compile-custom</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
     	</plugins>
 	</build>

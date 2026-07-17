@@ -9,6 +9,7 @@
     "conventionalCommits.scopes": [
         "patient-service",
         "billing-service",
-        "grpc-contracts"
+        "grpc-contracts",
+        "grpc"
     ]
 }
