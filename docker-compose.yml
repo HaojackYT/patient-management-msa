@@ -27,16 +27,16 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - ${POSTGRES_PORT}:5432
-    volumes: # named volume
+    volumes: # Named volume
       - ${POSTGRES_DATA}:/var/lib/postgresql
     networks:
       - patient-management-msa
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s # run the health check every x seconds
-      timeout: 5s # a time limit of x seconds before marking the attempt as failed
-      retries: 5 # number of allowed failed attempts in a row before marking the container as unhealthy
-      start_period: 30s # warm-up time for the container before docker starts counting failures
+      interval: 10s # Run the health check every x seconds
+      timeout: 5s # A time limit of x seconds before marking the attempt as failed
+      retries: 5 # Number of allowed failed attempts in a row before marking the container as unhealthy
+      start_period: 30s # Warm-up time for the container before docker starts counting failures
 
   billing-service:
     build:
@@ -50,6 +50,24 @@ services:
     networks:
       - patient-management-msa
     # depends_on:
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      - KAFKA_NODE_ID=0
+      - KAFKA_PROCESS_ROLES=controller,broker # are the roles of the Kafka container
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9222
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9222
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    ports:
+      - ${KAFKA_INTERNAL_PORT}:9092 # inside the docker network
+      - ${KAFKA_DEVELOPMENT_PORT}:9222 # outside the docker network 
+    networks:
+      - patient-management-msa
 
 volumes:
   patient-service-db-data:

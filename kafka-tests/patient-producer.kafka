@@ -1,0 +1,8 @@
+PRODUCER send-patient-event
+topic: patient
+key-format: string
+value-format: string(base64)
+key: test
+
+test
+###

@@ -1,0 +1,5 @@
+CONSUMER patient-management-msa
+topic: patient
+from: latest
+key-format: string
+value-format: string(base64)
