@@ -4,19 +4,19 @@ WORKDIR /app
 
 # Copy all POM files because root POM is an Aggregator that declares all modules
 COPY pom.xml .
-COPY grpc-contracts/pom.xml ./grpc-contracts/pom.xml
+COPY protobuf-contracts/pom.xml ./protobuf-contracts/pom.xml
 COPY patient-service/pom.xml ./patient-service/pom.xml
 COPY billing-service/pom.xml ./billing-service/pom.xml
 
 # Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
 RUN mvn dependency:go-offline -pl patient-service -am -B
 
-# patient-service is dependent on grpc-contracts
-COPY grpc-contracts/src ./grpc-contracts/src
+# patient-service is dependent on protobuf-contracts
+COPY protobuf-contracts/src ./protobuf-contracts/src
 COPY patient-service/src ./patient-service/src
 
 # -pl specifies the module to build (patient-service)
-# -am builds all modules that the specified module depends on (grpc-contracts)
+# -am builds all modules that the specified module depends on (protobuf-contracts)
 RUN mvn clean package -pl patient-service -am -B -DskipTests
 
 FROM eclipse-temurin:21-jre AS runner

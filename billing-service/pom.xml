@@ -56,7 +56,7 @@
 		<!-- Internal modules -->
 		<dependency>
 			<groupId>com.pm</groupId>
-			<artifactId>grpc-contracts</artifactId>
+			<artifactId>protobuf-contracts</artifactId>
 		</dependency>
 
 	</dependencies>
