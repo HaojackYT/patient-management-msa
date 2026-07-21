@@ -87,7 +87,16 @@
 		<!-- Internal modules -->
 		<dependency>
 			<groupId>com.pm</groupId>
-			<artifactId>grpc-contracts</artifactId>
+			<artifactId>protobuf-contracts</artifactId>
+		</dependency>
+
+		<!-- KAFKA -->
+
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>4.1.0</version>
 		</dependency>
 
 	</dependencies>
