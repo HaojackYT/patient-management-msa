@@ -1,0 +1,14 @@
+// Version of proto
+syntax = "proto3";
+
+package patient.events;
+
+// Generate individual files for each of the different classes that it can create
+option java_multiple_files = true;
+
+message PatientEvent {
+  string patientId = 1;
+  string name = 2;
+  string email = 3;
+  string eventType = 4;
+}
