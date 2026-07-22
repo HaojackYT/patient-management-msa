@@ -10,7 +10,8 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
       - BILLING_SERVICE_ADDRESS=billing-service
-      - BILLING_SERVICE_GRPC_PORT=${GRPC_SERVER_PORT}
+      - BILLING_SERVICE_GRPC_PORT=9001
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     ports:
       - ${PATIENT_SERVICE_PORT}:4000
     networks:
