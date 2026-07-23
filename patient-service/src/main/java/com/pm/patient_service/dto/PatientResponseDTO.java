@@ -42,7 +42,7 @@ public class PatientResponseDTO {
     public String getDateofBirth() {
         return dateofBirth;
     }
-    
+
     public void setDateofBirth(String dateofBirth) {
         this.dateofBirth = dateofBirth;
     }
