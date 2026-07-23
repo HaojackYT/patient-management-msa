@@ -14,9 +14,9 @@ import io.grpc.stub.StreamObserver;
 
 @GrpcService
 public class BillingGrpcService extends BillingServiceImplBase {
-    
+
     private static final Logger log = LoggerFactory.getLogger(
-        BillingGrpcService.class);
+            BillingGrpcService.class);
 
     // StreamObserver once the client establishes a connection with the server,
     // they can exchange data in real time
