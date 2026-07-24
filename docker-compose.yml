@@ -19,6 +19,8 @@ services:
     depends_on:
       patient-service-db:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
   
   patient-service-db:
     image: postgres:latest
@@ -69,6 +71,26 @@ services:
       - ${KAFKA_DEVELOPMENT_PORT}:9222 # outside the docker network 
     networks:
       - patient-management-msa
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: analytics-service/dockerfile
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    ports:
+      - ${ANALYTICS_SERVICE_PORT}:4002
+    networks:
+      - patient-management-msa
+    depends_on:
+      kafka:
+        condition: service_healthy
 
 volumes:
   patient-service-db-data:

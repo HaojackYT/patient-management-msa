@@ -5,30 +5,27 @@ WORKDIR /app
 # Copy all POM files because root POM is an Aggregator that declares all modules
 COPY pom.xml .
 COPY protobuf-contracts/pom.xml ./protobuf-contracts/pom.xml
-COPY billing-service/pom.xml ./billing-service/pom.xml
 COPY patient-service/pom.xml ./patient-service/pom.xml
+COPY billing-service/pom.xml ./billing-service/pom.xml
 COPY analytics-service/pom.xml ./analytics-service/pom.xml
 
+# Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
+RUN mvn dependency:go-offline -pl analytics-service -am -B
 
-RUN mvn dependency:go-offline -pl billing-service -am -B
-
-# billing-service is dependent on protobuf-contracts
+# analytics-service is dependent on protobuf-contracts
 COPY protobuf-contracts/src ./protobuf-contracts/src
-COPY billing-service/src ./billing-service/src
+COPY analytics-service/src ./analytics-service/src
 
-# -pl specifies the module to build (patient-service)
+# -pl specifies the module to build (analytics-service)
 # -am builds all modules that the specified module depends on (protobuf-contracts)
-RUN mvn clean package -pl billing-service -am -B -DskipTests
+RUN mvn clean package -pl analytics-service -am -B -DskipTests
 
 FROM eclipse-temurin:21-jre AS runner
 
 WORKDIR /app
 
-COPY --from=builder /app/billing-service/target/billing-service-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=builder /app/analytics-service/target/analytics-service-0.0.1-SNAPSHOT.jar ./app.jar
 
-# REST server port
-EXPOSE 4001
-# gRPC server port
-EXPOSE 9001
+EXPOSE 4002
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
