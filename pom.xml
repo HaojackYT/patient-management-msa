@@ -24,19 +24,16 @@
 
 	<modules>
 		<module>protobuf-contracts</module>
-		<module>billing-service</module>
 		<module>patient-service</module>
+		<module>billing-service</module>
+		<module>analytics-service</module>
+		<module>api-gateway</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
-		
-			<!-- Internal modules -->
-			<dependency>
-				<groupId>com.pm</groupId>
-				<artifactId>protobuf-contracts</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+
+			<!-- Protobuf -->
 
 			<!-- Source: https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<dependency>
@@ -47,13 +44,7 @@
 
 			<!-- gRPC -->
 
-			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>grpc-netty-shaded</artifactId>
-				<version>${grpc.version}</version>
-			</dependency>
-
+			<!-- protobuf-contracts -->
 			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
 			<dependency>
 				<groupId>io.grpc</groupId>
@@ -61,18 +52,36 @@
 				<version>${grpc.version}</version>
 			</dependency>
 
+			<!-- protobuf-contracts -->
 			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
 			<dependency>
 				<groupId>io.grpc</groupId>
 				<artifactId>grpc-stub</artifactId>
 				<version>${grpc.version}</version>
 			</dependency>
+
+			<!-- patient-service, billing-service -->
+			<!-- Source: https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-netty-shaded</artifactId>
+				<version>${grpc.version}</version>
+			</dependency>
 			
+			<!-- patient-service, billing-service -->
 			<!-- Source: https://mvnrepository.com/artifact/net.devh/grpc-spring-boot-starter -->
 			<dependency>
 				<groupId>net.devh</groupId>
 				<artifactId>grpc-spring-boot-starter</artifactId>
 				<version>${grpc-spring-boot-starter.version}</version>
+			</dependency>
+
+			<!-- patient-service, billing-service, analytics-service -->
+			<!-- Internal modules -->
+			<dependency>
+				<groupId>com.pm</groupId>
+				<artifactId>protobuf-contracts</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 
 		</dependencies>
