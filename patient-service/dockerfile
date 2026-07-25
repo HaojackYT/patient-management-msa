@@ -8,6 +8,7 @@ COPY protobuf-contracts/pom.xml ./protobuf-contracts/pom.xml
 COPY patient-service/pom.xml ./patient-service/pom.xml
 COPY billing-service/pom.xml ./billing-service/pom.xml
 COPY analytics-service/pom.xml ./analytics-service/pom.xml
+COPY api-gateway/pom.xml ./api-gateway/pom.xml
 
 # Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
 RUN mvn dependency:go-offline -pl patient-service -am -B
@@ -26,6 +27,6 @@ WORKDIR /app
 
 COPY --from=builder /app/patient-service/target/patient-service-0.0.1-SNAPSHOT.jar ./app.jar
 
-EXPOSE 4000
+EXPOSE ${PATIENT_SERVICE_PORT}
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
