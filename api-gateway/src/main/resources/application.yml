@@ -1,0 +1,24 @@
+server:
+  port: ${API_GATEWAY_PORT:4003}
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: api-docs-patient-route
+          uri: http://patient-service:${PATIENT_SERVICE_PORT:4000}
+          predicates:
+            - Path=/api-docs/patients
+          filters: #
+            - RewritePath=/api-docs/patients,/v3/api-docs
+        # REST API: http://localhost:${API_GATEWAY_PORT}/api-docs/patients
+        # API GATEWAY: http://patient-service:${PATIENT_SERVICE_PORT}/v3/api-docs
+
+        - id: patient-service-route
+          uri: http://patient-service:${PATIENT_SERVICE_PORT:4000}
+          predicates: # determine what requests get sent to this route 
+            - Path=/api/patients/**
+          filters: # rewrite the predicate path before it forwards the request to uri
+            - StripPrefix=1
+        # REST API: http://localhost:${API_GATEWAY_PORT}/api/patients
+        # API GATEWAY: http://patient-service:${PATIENT_SERVICE_PORT}/patients
