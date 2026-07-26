@@ -1,0 +1,30 @@
+FROM maven:3.9.16-eclipse-temurin-21 AS builder
+
+WORKDIR /app
+
+# Copy all POM files because root POM is an Aggregator that declares all modules
+COPY pom.xml .
+COPY protobuf-contracts/pom.xml ./protobuf-contracts/pom.xml
+COPY patient-service/pom.xml ./patient-service/pom.xml
+COPY billing-service/pom.xml ./billing-service/pom.xml
+COPY analytics-service/pom.xml ./analytics-service/pom.xml
+COPY api-gateway/pom.xml ./api-gateway/pom.xml
+
+# Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
+RUN mvn dependency:go-offline -pl api-gateway -am -B
+
+COPY api-gateway/src ./api-gateway/src
+
+# -pl specifies the module to build (api-gateway)
+# -am builds all modules that the specified module depends on (protobuf-contracts)
+RUN mvn clean package -pl api-gateway -am -B -DskipTests
+
+FROM eclipse-temurin:21-jre AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar ./app.jar
+
+EXPOSE ${API_GATEWAY_PORT}
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -12,10 +12,12 @@ services:
       - BILLING_SERVICE_ADDRESS=billing-service
       - BILLING_SERVICE_GRPC_PORT=9001
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    ports:
+    expose:
       - ${PATIENT_SERVICE_PORT}:4000
     networks:
       - patient-management-msa
+    # healthcheck:
+
     depends_on:
       patient-service-db:
         condition: service_healthy
@@ -28,7 +30,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    ports:
+    expose:
       - ${POSTGRES_PORT}:5432
     volumes: # Named volume
       - ${POSTGRES_DATA}:/var/lib/postgresql
@@ -47,11 +49,13 @@ services:
       dockerfile: billing-service/dockerfile
     # environment:
 
-    ports:
+    expose:
       - ${BILLING_SERVICE_PORT}:4001
       - ${GRPC_SERVER_PORT}:9001
     networks:
       - patient-management-msa
+    # healthcheck:
+
     # depends_on:
 
   kafka:
@@ -66,9 +70,10 @@ services:
       - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-    ports:
-      - ${KAFKA_INTERNAL_PORT}:9092 # inside the docker network
-      - ${KAFKA_DEVELOPMENT_PORT}:9222 # outside the docker network 
+    expose: # inside the docker network
+      - ${KAFKA_INTERNAL_PORT}:9092
+    ports: # outside the docker network 
+      - ${KAFKA_DEVELOPMENT_PORT}:9222
     networks:
       - patient-management-msa
     healthcheck:
@@ -84,13 +89,31 @@ services:
       dockerfile: analytics-service/dockerfile
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    ports:
+    expose:
       - ${ANALYTICS_SERVICE_PORT}:4002
     networks:
       - patient-management-msa
+    # healthcheck:
+
     depends_on:
       kafka:
         condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/dockerfile
+    # environment:
+
+    ports:
+      - "${API_GATEWAY_PORT}:4003"
+    networks:
+      - patient-management-msa
+    # healthcheck:
+
+    depends_on:
+      patient-service:
+        condition: service_started
 
 volumes:
   patient-service-db-data:

@@ -18,7 +18,8 @@
         "grpc",
         "docker-compose",
         "api-gateway",
-        "postman"
+        "postman",
+        "docker"
     ],
     "kafka.clusters.selected": "patientmanagementmsa-bG9jYWxob3N0OjkyMjI"
 }
