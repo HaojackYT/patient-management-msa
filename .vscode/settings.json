@@ -1,15 +1,24 @@
 {
-    "java.project.sourcePaths": ["src"],
-    "java.project.outputPath": "bin",
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.maven.downloadSources": true,
+    "java.project.sourcePaths": [
+        "protobuf-contracts/src/main/java",
+        "protobuf-contracts/target/generated-sources/protobuf/java",
+        "protobuf-contracts/target/generated-sources/protobuf/grpc-java",
+        "billing-service/src/main/java",
+        "patient-service/src/main/java"
     ],
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "protobuf.protoc.path": "C:\\Installation\\protoc-35.0-win64\\bin",
+    "java.project.referencedLibraries": [
+        "protobuf-contracts/target/classes"
+    ],
     "conventionalCommits.scopes": [
         "patient-service",
         "billing-service",
-        "grpc-contracts",
-        "grpc"
-    ]
+        "protobuf-contracts",
+        "grpc",
+        "docker-compose",
+        "api-gateway",
+        "postman"
+    ],
+    "kafka.clusters.selected": "patientmanagementmsa-bG9jYWxob3N0OjkyMjI"
 }

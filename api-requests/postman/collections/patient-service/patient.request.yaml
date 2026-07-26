@@ -1,4 +1,5 @@
 $kind: http-request
-url: http://localhost:4000/patients
+name: patient
+url: http://localhost:4003/api/patients
 method: GET
 order: 1779010307478
