@@ -4,9 +4,9 @@ services:
       context: . # is /patient-management-msa
       dockerfile: patient-service/dockerfile
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/${POSTGRES_DB}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/${PATIENT_SERVICE_DB}
+      - SPRING_DATASOURCE_USERNAME=${PATIENT_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${PATIENT_SERVICE_DB_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
       - BILLING_SERVICE_ADDRESS=billing-service
@@ -23,25 +23,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-  
-  patient-service-db:
-    image: postgres:latest
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    expose:
-      - ${POSTGRES_PORT}:5432
-    volumes: # Named volume
-      - ${POSTGRES_DATA}:/var/lib/postgresql
-    networks:
-      - patient-management-msa
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s # Run the health check every x seconds
-      timeout: 5s # A time limit of x seconds before marking the attempt as failed
-      retries: 5 # Number of allowed failed attempts in a row before marking the container as unhealthy
-      start_period: 30s # Warm-up time for the container before docker starts counting failures
 
   billing-service:
     build:
@@ -57,31 +38,6 @@ services:
     # healthcheck:
 
     # depends_on:
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    environment:
-      - KAFKA_NODE_ID=0
-      - KAFKA_PROCESS_ROLES=controller,broker # are the roles of the Kafka container
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9222
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9222
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
-      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-    expose: # inside the docker network
-      - ${KAFKA_INTERNAL_PORT}:9092
-    ports: # outside the docker network 
-      - ${KAFKA_DEVELOPMENT_PORT}:9222
-    networks:
-      - patient-management-msa
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   analytics-service:
     build:
@@ -115,8 +71,97 @@ services:
       patient-service:
         condition: service_started
 
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-db:5432/${AUTH_SERVICE_DB}
+      - SPRING_DATASOURCE_USERNAME=${AUTH_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${AUTH_SERVICE_DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SQL_INIT_MODE=always
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - ${AUTH_SERVICE_PORT}:4004
+    networks:
+      - patient-management-msa
+    # healthcheck:
+
+    depends_on:
+      auth-service-db:
+        condition: service_healthy
+
+  # Kafka Broker
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      - KAFKA_NODE_ID=0
+      - KAFKA_PROCESS_ROLES=controller,broker # are the roles of the Kafka container
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9222
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9222
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    expose: # inside the docker network
+      - ${KAFKA_INTERNAL_PORT}:9092
+    ports: # outside the docker network 
+      - ${KAFKA_DEVELOPMENT_PORT}:9222
+    networks:
+      - patient-management-msa
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # PostgreSQL DB
+
+  patient-service-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${PATIENT_SERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${PATIENT_SERVICE_DB_PASSWORD}
+      - POSTGRES_DB=${PATIENT_SERVICE_DB}
+    expose:
+      - ${PATIENT_SERVICE_DB_PORT}:5432
+    volumes: # Named volume
+      - ${PATIENT_SERVICE_DB_DATA}:/var/lib/postgresql
+    networks:
+      - patient-management-msa
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${PATIENT_SERVICE_DB_USER} -d ${PATIENT_SERVICE_DB}"]
+      interval: 10s # Run the health check every x seconds
+      timeout: 5s # A time limit of x seconds before marking the attempt as failed
+      retries: 5 # Number of allowed failed attempts in a row before marking the container as unhealthy
+      start_period: 30s # Warm-up time for the container before docker starts counting failures
+
+  auth-service-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${AUTH_SERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${AUTH_SERVICE_DB_PASSWORD}
+      - POSTGRES_DB=${AUTH_SERVICE_DB}
+    ports:
+      - ${AUTH_SERVICE_DB_PORT}:5432
+    volumes: # Named volume
+      - ${AUTH_SERVICE_DB_DATA}:/var/lib/postgresql
+    networks:
+      - patient-management-msa
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${AUTH_SERVICE_DB_USER} -d ${AUTH_SERVICE_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   patient-service-db-data:
+  auth-service-db-data:
 
 networks:
   patient-management-msa:

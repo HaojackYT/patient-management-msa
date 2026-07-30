@@ -9,6 +9,7 @@ COPY patient-service/pom.xml ./patient-service/pom.xml
 COPY billing-service/pom.xml ./billing-service/pom.xml
 COPY analytics-service/pom.xml ./analytics-service/pom.xml
 COPY api-gateway/pom.xml ./api-gateway/pom.xml
+COPY auth-service/pom.xml ./auth-service/pom.xml
 
 # Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
 RUN mvn dependency:go-offline -pl api-gateway -am -B

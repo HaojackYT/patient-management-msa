@@ -19,7 +19,8 @@
         "docker-compose",
         "api-gateway",
         "postman",
-        "docker"
+        "docker",
+        "auth-service"
     ],
     "kafka.clusters.selected": "patientmanagementmsa-bG9jYWxob3N0OjkyMjI"
 }

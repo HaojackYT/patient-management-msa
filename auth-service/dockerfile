@@ -12,22 +12,20 @@ COPY api-gateway/pom.xml ./api-gateway/pom.xml
 COPY auth-service/pom.xml ./auth-service/pom.xml
 
 # Download all dependencies (offline cache) before copying source code to leverage Docker layer caching
-RUN mvn dependency:go-offline -pl analytics-service -am -B
+RUN mvn dependency:go-offline -pl auth-service -am -B
 
-# analytics-service is dependent on protobuf-contracts
-COPY protobuf-contracts/src ./protobuf-contracts/src
-COPY analytics-service/src ./analytics-service/src
+COPY auth-service/src ./auth-service/src
 
-# -pl specifies the module to build (analytics-service)
+# -pl specifies the module to build (auth-service)
 # -am builds all modules that the specified module depends on (protobuf-contracts)
-RUN mvn clean package -pl analytics-service -am -B -DskipTests
+RUN mvn clean package -pl auth-service -am -B -DskipTests
 
 FROM eclipse-temurin:21-jre AS runner
 
 WORKDIR /app
 
-COPY --from=builder /app/analytics-service/target/analytics-service-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=builder /app/auth-service/target/auth-service-0.0.1-SNAPSHOT.jar ./app.jar
 
-EXPOSE ${ANALYTICS_SERVICE_PORT}
+EXPOSE ${AUTH_SERVICE_PORT}
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
