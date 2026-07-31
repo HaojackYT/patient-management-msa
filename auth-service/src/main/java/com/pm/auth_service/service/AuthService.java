@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.pm.auth_service.dto.LoginRequestDTO;
 import com.pm.auth_service.util.JwtUtil;
 
+import io.jsonwebtoken.JwtException;
+
 @Service
 public class AuthService {
 
@@ -29,6 +31,16 @@ public class AuthService {
                 .map(user -> jwtUtil.generateToken(user.getEmail(), user.getRole()));
 
         return token;
+    }
+
+    public boolean validateToken(String token) {
+
+        try {
+            jwtUtil.validateToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
 }
