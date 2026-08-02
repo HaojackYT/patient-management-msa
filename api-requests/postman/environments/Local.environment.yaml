@@ -1,0 +1,6 @@
+name: Local
+values:
+  - key: ''
+    value: ''
+  - key: JWT_TOKEN
+    value: ''

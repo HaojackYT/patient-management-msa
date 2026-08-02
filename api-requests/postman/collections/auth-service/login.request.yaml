@@ -1,0 +1,21 @@
+$kind: http-request
+name: login
+url: http://localhost:4003/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"testuser@test.com\",\r
+
+    \    \"password\": \"password123\"\r
+
+    }"
+scripts:
+  - type: beforeRequest
+    code: ""
+    language: text/javascript
+  - type: afterResponse
+    code: pm.environment.set("JWT_TOKEN", pm.response.json().token)
+    language: text/javascript
+order: 1785388269507

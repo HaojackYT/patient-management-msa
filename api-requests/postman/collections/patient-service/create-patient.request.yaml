@@ -59,4 +59,8 @@ body:
     \  \"registeredDate\": \"2024-11-28\"\r
 
     }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{JWT_TOKEN}}"
 order: 740750618766667

@@ -5,14 +5,14 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: api-docs-patient-route
-          uri: http://patient-service:${PATIENT_SERVICE_PORT:4000}
+        - id: auth-service-route
+          uri: http://auth-service:${AUTH_SERVICE_PORT:4004}
           predicates:
-            - Path=/api-docs/patients
-          filters: #
-            - RewritePath=/api-docs/patients,/v3/api-docs
-        # REST API: http://localhost:${API_GATEWAY_PORT}/api-docs/patients
-        # API GATEWAY: http://patient-service:${PATIENT_SERVICE_PORT}/v3/api-docs
+            - Path=/auth/**
+          filters:
+          - StripPrefix=1
+        # REST API: http://localhost:${API_GATEWAY_PORT}/auth/login
+        # API GATEWAY: http://auth-service:${AUTH_SERVICE_PORT}/login
 
         - id: patient-service-route
           uri: http://patient-service:${PATIENT_SERVICE_PORT:4000}
@@ -20,5 +20,28 @@ spring:
             - Path=/api/patients/**
           filters: # rewrite the predicate path before it forwards the request to uri
             - StripPrefix=1
+            - JwtValidation # is the name which Spring will use to look for a class ({the name}GatewayFilterFactory)
         # REST API: http://localhost:${API_GATEWAY_PORT}/api/patients
         # API GATEWAY: http://patient-service:${PATIENT_SERVICE_PORT}/patients
+
+        - id: api-docs-auth-route
+          uri: http://auth-service:${AUTH_SERVICE_PORT:4004}
+          predicates:
+            - Path=/api-docs/auth
+          filters: #
+            - RewritePath=/api-docs/auth,/v3/api-docs
+        # REST API: http://localhost:${API_GATEWAY_PORT}/api-docs/auth
+        # API GATEWAY: http://auth-service:${AUTH_SERVICE_PORT}/v3/api-docs
+
+        - id: api-docs-patient-route
+          uri: http://patient-service:${PATIENT_SERVICE_PORT:4000}
+          predicates:
+            - Path=/api-docs/patients
+          filters: # /v3/api-docs is the default path for spingdoc-openapi
+            - RewritePath=/api-docs/patients,/v3/api-docs
+        # REST API: http://localhost:${API_GATEWAY_PORT}/api-docs/patients
+        # API GATEWAY: http://patient-service:${PATIENT_SERVICE_PORT}/v3/api-docs
+
+        # - id: billing-service-route
+
+        # - id: analytics-service-route

@@ -4,22 +4,43 @@ url: http://localhost:4003/api/patients/123e4567-e89b-12d3-a456-426614174000
 method: PUT
 body:
   type: json
-  content: "// {\r\n
-    //   \"name\": \"John Doe\",\r\n
-    //   \"email\": \"test@example.com\",\r\n
-    //   \"address\": \"123 main street22\",\r\n
-    //   \"dateOfBirth\": \"1995-09-09\"\r\n
-    // }\r\n
-    // {\r\n
-    //   \"name\": \"John Doe\",\r\n
-    \r\n
-    //   \"address\": \"123 main street22\",\r\n
-    //   \"dateOfBirth\": \"1995-09-09\"\r\n
-    // }\r\n
-    {\r\n
-    \  \"name\": \"John Doe (updated)\",\r\n
-    \  \"email\": \"john.doe@example.com\",\r\n
-    \  \"address\": \"123 main street22\",\r\n
-    \  \"dateOfBirth\": \"1995-09-09\"\r\n
-    }"
+  content: "// {\r
+
+    \ //   \"name\": \"John Doe\",\r
+
+    \ //   \"email\": \"test@example.com\",\r
+
+    \ //   \"address\": \"123 main street22\",\r
+
+    \ //   \"dateOfBirth\": \"1995-09-09\"\r
+
+    \ // }\r
+
+    \ // {\r
+
+    \ //   \"name\": \"John Doe\",\r
+
+    \ \r
+
+    \ //   \"address\": \"123 main street22\",\r
+
+    \ //   \"dateOfBirth\": \"1995-09-09\"\r
+
+    \ // }\r
+
+    \ {\r
+
+    \   \"name\": \"John Doe (updated)\",\r
+
+    \   \"email\": \"john.doe@example.com\",\r
+
+    \   \"address\": \"123 main street22\",\r
+
+    \   \"dateOfBirth\": \"1995-09-09\"\r
+
+    \ }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{JWT_TOKEN}}"
 order: 2842967696924151

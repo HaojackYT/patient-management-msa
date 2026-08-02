@@ -1,9 +1,9 @@
 $kind: http-request
-name: patient
-url: http://localhost:4003/api/patients
+name: validate
+url: http://localhost:4003/auth/validate
 method: GET
 auth:
   type: bearer
   credentials:
     token: "{{JWT_TOKEN}}"
-order: 1779010307478
+order: 3504858835822669
