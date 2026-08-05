@@ -19,7 +19,7 @@ public class AuthIntegrationTest {
 
     // should + Return{Expected_Outcome} + With{Data}
     @Test
-    void shouldReturnOkWithValidToken() {
+    void shouldReturnOkWithValidLogin() { // the happy path: all the input, response data are valid
 
         String loginPayload = """
                     {
@@ -27,8 +27,9 @@ public class AuthIntegrationTest {
                         "password": "password123"
                     }
                 """;
-        // 1. Arrange: setup the environment so that the test can work 100% of the time
+
         Response response = RestAssured.given()
+                // 1. Arrange: setup the environment so that the test can work 100% of the time
                 .contentType("application/json")
                 .body(loginPayload)
                 // 2. Act: trigger the thing to test
@@ -42,5 +43,27 @@ public class AuthIntegrationTest {
                 .response(); // get the actual response object
 
         System.out.println("Generated Token: " + response.jsonPath().getString("token"));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWithInvalidLogin() { // the unhappy path
+
+        String loginPayload = """
+                    {
+                        "email": "invalidtestuser@test.com",
+                        "password": "wrongpassword"
+                    }
+                """;
+
+        RestAssured.given()
+                // 1. Arrange
+                .contentType("application/json")
+                .body(loginPayload)
+                // 2. Act
+                .when()
+                .post("/auth/login")
+                // 3. Assert
+                .then()
+                .statusCode(401);
     }
 }
