@@ -59,8 +59,8 @@ services:
     build:
       context: .
       dockerfile: api-gateway/dockerfile
-    # environment:
-
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:${AUTH_SERVICE_PORT:-4004}
     ports:
       - "${API_GATEWAY_PORT}:4003"
     networks:
@@ -82,7 +82,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
       - JWT_SECRET=${JWT_SECRET}
-    ports:
+    expose:
       - ${AUTH_SERVICE_PORT}:4004
     networks:
       - patient-management-msa
@@ -99,8 +99,8 @@ services:
     environment:
       - KAFKA_NODE_ID=0
       - KAFKA_PROCESS_ROLES=controller,broker # are the roles of the Kafka container
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9222
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9222
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9400
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9400
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
@@ -109,7 +109,7 @@ services:
     expose: # inside the docker network
       - ${KAFKA_INTERNAL_PORT}:9092
     ports: # outside the docker network 
-      - ${KAFKA_DEVELOPMENT_PORT}:9222
+      - ${KAFKA_DEVELOPMENT_PORT}:9400
     networks:
       - patient-management-msa
     healthcheck:
@@ -127,7 +127,7 @@ services:
       - POSTGRES_USER=${PATIENT_SERVICE_DB_USER}
       - POSTGRES_PASSWORD=${PATIENT_SERVICE_DB_PASSWORD}
       - POSTGRES_DB=${PATIENT_SERVICE_DB}
-    expose:
+    ports:
       - ${PATIENT_SERVICE_DB_PORT}:5432
     volumes: # Named volume
       - ${PATIENT_SERVICE_DB_DATA}:/var/lib/postgresql
