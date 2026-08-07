@@ -12,6 +12,8 @@
     </parent>
 
     <artifactId>protobuf-contracts</artifactId>
+    <name>protobuf-contracts</name>
+    <description>protobuf-contracts</description>
 
     <dependencies>
 
