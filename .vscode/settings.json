@@ -21,7 +21,8 @@
         "postman",
         "docker",
         "auth-service",
-        "integration"
+        "integration",
+        "infrastructure"
     ],
     "kafka.clusters.selected": "patientmanagementmsa-bG9jYWxob3N0OjkyMjI"
 }

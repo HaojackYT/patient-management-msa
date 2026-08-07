@@ -3,19 +3,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "BillingServiceApplication",
             "request": "launch",
-            "mainClass": "com.pm.billing_service.BillingServiceApplication",
-            "projectName": "billing-service"
-        },
-        {
-            "type": "java",
-            "request": "launch",
-            "name": "PatientServiceApplication",
-            "mainClass": "com.pm.patient_service.PatientServiceApplication",
-            "projectName": "patient-service",
-            "cwd": "${workspaceFolder}/patient-service",
-            "vmArgs": "-Dspring.config.location=file:${workspaceFolder}/patient-service/src/main/resources/application.properties"
+            "name": "ministack",
+            "mainClass": "com.pm.stack.MiniStack",
+            "projectName": "infrastructure",
+            "cwd": "${workspaceFolder}/infrastructure"
         }
     ]
 }
