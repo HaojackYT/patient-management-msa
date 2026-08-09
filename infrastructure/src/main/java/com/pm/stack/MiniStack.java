@@ -1,5 +1,8 @@
 package com.pm.stack;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +11,7 @@ import java.util.stream.Collectors;
 import software.amazon.awscdk.App;
 import software.amazon.awscdk.AppProps;
 import software.amazon.awscdk.BootstraplessSynthesizer;
+import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
@@ -19,6 +23,7 @@ import software.amazon.awscdk.services.ec2.InstanceType;
 import software.amazon.awscdk.services.ec2.Vpc;
 import software.amazon.awscdk.services.ecs.AwsLogDriverProps;
 import software.amazon.awscdk.services.ecs.CloudMapNamespaceOptions;
+import software.amazon.awscdk.services.ecs.CloudMapOptions;
 import software.amazon.awscdk.services.ecs.Cluster;
 import software.amazon.awscdk.services.ecs.ContainerDefinitionOptions;
 import software.amazon.awscdk.services.ecs.ContainerImage;
@@ -27,6 +32,7 @@ import software.amazon.awscdk.services.ecs.FargateTaskDefinition;
 import software.amazon.awscdk.services.ecs.LogDriver;
 import software.amazon.awscdk.services.ecs.PortMapping;
 import software.amazon.awscdk.services.ecs.Protocol;
+import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.msk.CfnCluster;
@@ -46,7 +52,7 @@ public class MiniStack extends Stack {
 
 		return Vpc.Builder.create(this, "PatientManagementVpc")
 				.vpcName("PatientManagementVpc")
-				// Avalilability Zones (AZs)
+				// AZs: Availability Zones
 				.maxAzs(2)
 				.build();
 	}
@@ -91,7 +97,7 @@ public class MiniStack extends Stack {
 						.port(Token.asNumber(db.getDbInstanceEndpointPort()))
 						.ipAddress(db.getDbInstanceEndpointAddress())
 						.requestInterval(30) // seconds
-						// try 3 times once every 30 seconds before report a failure
+						// Try 3 times once every 30 seconds before report a failure
 						.failureThreshold(3)
 						.build())
 				.build();
@@ -122,9 +128,10 @@ public class MiniStack extends Stack {
 
 		FargateTaskDefinition taskDefinition = FargateTaskDefinition.Builder.create(this, id + "Task")
 				.cpu(256) // cpu units
-				.memoryLimitMiB(512) // MB
+				.memoryLimitMiB(512)
 				.build();
 
+		// .Builder: configure additional properties later before calling .build().
 		ContainerDefinitionOptions.Builder containerOptions = ContainerDefinitionOptions.builder()
 				.image(ContainerImage.fromRegistry(imageName))
 				.portMappings(ports.stream()
@@ -140,9 +147,10 @@ public class MiniStack extends Stack {
 								.removalPolicy(RemovalPolicy.DESTROY)
 								.retention(RetentionDays.ONE_DAY)
 								.build())
+						.streamPrefix(imageName)
 						.build()));
 
-		Map<String, String> envVars = new HashMap<>(additionalEnvVars);
+		Map<String, String> envVars = new HashMap<>();
 		envVars.put("SPRING_KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
 
 		if (additionalEnvVars != null) {
@@ -165,7 +173,7 @@ public class MiniStack extends Stack {
 		}
 
 		containerOptions.environment(envVars);
-		// image <-> container <-> taskDefinition
+		// image -> container -> taskDefinition -> service
 		taskDefinition.addContainer(imageName + "Container", containerOptions.build());
 
 		return FargateService.Builder.create(this, id)
@@ -173,7 +181,133 @@ public class MiniStack extends Stack {
 				.taskDefinition(taskDefinition)
 				.assignPublicIp(false)
 				.serviceName(imageName)
+				// ECS Service Discovery
+				.cloudMapOptions(CloudMapOptions.builder()
+						.name(imageName)
+						.build())
 				.build();
+	}
+
+	private Path findEnvFile() { // in the current or any parent directory
+
+		// cwd: current working directory
+		Path cwd = Path.of("").toAbsolutePath();
+		Path candidate = cwd;
+
+		while (candidate != null) {
+			// {cwd}/.env
+			Path envFile = candidate.resolve(".env");
+			if (Files.exists(envFile)) {
+				return envFile;
+			}
+			// ../../.. -> ../..
+			candidate = candidate.getParent();
+		}
+
+		return null;
+	}
+
+	private Map<String, String> loadEnvVariables() {
+
+		Map<String, String> result = new HashMap<>();
+		Path envFile = findEnvFile();
+
+		if (envFile != null) {
+			try {
+				List<String> lines = Files.readAllLines(envFile);
+
+				for (String line : lines) {
+
+					String trimmed = line.trim();
+
+					// Skip empty and comment lines
+					if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+						continue;
+					}
+
+					int eqIndex = trimmed.indexOf('=');
+
+					// Skip lines that don't contain '=' or have it at the start
+					if (eqIndex <= 0) {
+						continue;
+					}
+
+					String key = trimmed.substring(0, eqIndex).trim();
+					String value = trimmed.substring(eqIndex + 1).trim();
+
+					// Strip surrounding quotes (' or ") if present
+					if (value.length() >= 2 &&
+							((value.startsWith("\"") && value.endsWith("\"")) ||
+									(value.startsWith("'") && value.endsWith("'")))) {
+
+						value = value.substring(1, value.length() - 1);
+					}
+
+					if (!key.isEmpty()) {
+						result.put(key, value);
+					}
+				}
+			} catch (IOException e) {
+				System.err.println("Couldn't read .env file at " + envFile + ": " + e.getMessage());
+
+			}
+		}
+
+		// Prioritize system environment variables over .env
+		result.putAll(System.getenv());
+		return result;
+	}
+
+	private void createApiGatewayService() {
+
+		FargateTaskDefinition taskDefinition = FargateTaskDefinition.Builder.create(this,
+				"APIGateWayTaskDefinition")
+				.cpu(256)
+				.memoryLimitMiB(512)
+				.build();
+		Map<String, String> envVars = loadEnvVariables();
+
+		ContainerDefinitionOptions containerOptions = ContainerDefinitionOptions.builder()
+				.image(ContainerImage.fromRegistry("api-gateway"))
+				.environment(Map.of(
+						"SPRING_PROFILES_ACTIVE", "prod",
+						"AUTH_SERVICE_ADDRESS", "http://auth-service.patient-management.local:" +
+								envVars.getOrDefault("API_GATEWAY_PORT", "4004")))
+				.portMappings(List.of(Integer.parseInt(envVars.getOrDefault(
+						"API_GATEWAY_PORT", "4003"))).stream()
+						.map(port -> PortMapping.builder()
+								.containerPort(port)
+								.hostPort(port)
+								.protocol(Protocol.TCP)
+								.build())
+						.toList())
+				.logging(LogDriver.awsLogs(AwsLogDriverProps.builder()
+						.logGroup(LogGroup.Builder.create(this, "ApiGatewayLogGroup")
+								.logGroupName("/ecs/api-gateway")
+								.removalPolicy(RemovalPolicy.DESTROY)
+								.retention(RetentionDays.ONE_DAY)
+								.build())
+						.streamPrefix("api-gateway")
+						.build()))
+				.build();
+
+		// image -> container -> taskDefinition -> service
+		taskDefinition.addContainer("ApiGatewayContainer", containerOptions);
+
+		ApplicationLoadBalancedFargateService apiGatewayService =
+
+				ApplicationLoadBalancedFargateService.Builder
+						.create(this, "ApiGatewayService")
+						.cluster(ecsCluster)
+						.taskDefinition(taskDefinition)
+						.serviceName("api-gateway")
+						.desiredCount(1) // how many instances of the service
+						// How long the application load balance waits for the service to start
+						.healthCheckGracePeriod(Duration.seconds(60))
+						.cloudMapOptions(CloudMapOptions.builder()
+								.name("api-gateway")
+								.build())
+						.build();
 	}
 
 	public MiniStack(final App scope, final String id, final StackProps props) {
@@ -194,7 +328,61 @@ public class MiniStack extends Stack {
 		// MSK
 		CfnCluster mskCluster = createMskCluster();
 
+		// ECS
 		this.ecsCluster = createEcsCluster();
+
+		Map<String, String> envVars = loadEnvVariables();
+
+		String jwtSecret = envVars.get("JWT_SECRET");
+		if (jwtSecret == null || jwtSecret.isBlank()) {
+			throw new IllegalStateException(
+					"Environment variable JWT_SECRET is not set.");
+		}
+
+		FargateService authService = createFargateService(
+				"AuthService",
+				"auth-service",
+				List.of(Integer.parseInt(envVars.getOrDefault(
+						"API_GATEWAY_PORT", "4004"))),
+				authServiceDb,
+				Map.of("JWT_SECRET", jwtSecret));
+		authService.getNode().addDependency(authServiceDb);
+		authService.getNode().addDependency(authServiceDbHealthCheck);
+
+		FargateService billingService = createFargateService(
+				"BillingService",
+				"billing-service",
+				List.of(
+						Integer.parseInt(envVars.getOrDefault(
+								"API_GATEWAY_PORT", "4001")),
+						Integer.parseInt(envVars.getOrDefault(
+								"GRPC_SERVER_PORT", "9001"))),
+				null, null);
+
+		FargateService analyticsService = createFargateService(
+				"AnalyticsService",
+				"analytics-service",
+				List.of(Integer.parseInt(envVars.getOrDefault(
+						"API_GATEWAY_PORT", "4002"))),
+				null, null);
+		analyticsService.getNode().addDependency(mskCluster);
+
+		FargateService patientService = createFargateService(
+				"PatientService",
+				"patient-service",
+				List.of(Integer.parseInt(envVars.getOrDefault(
+						"API_GATEWAY_PORT", "4000"))),
+				patientServiceDb,
+				Map.of(
+						"BILLING_SERVICE_ADDRESS",
+						"http://billing-service.patient-management.local:" + envVars.getOrDefault(
+								"API_GATEWAY_PORT", "4001"),
+						"BILLING_SERVICE_GRPC_PORT", envVars.getOrDefault(
+								"GRPC_SERVER_PORT", "9001")));
+		patientService.getNode().addDependency(patientServiceDb);
+		patientService.getNode().addDependency(patientServiceDbHealthCheck);
+		patientService.getNode().addDependency(billingService);
+		patientService.getNode().addDependency(mskCluster);
 	}
 
 	public static void main(final String[] args) {
