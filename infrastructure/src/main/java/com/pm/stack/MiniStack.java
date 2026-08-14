@@ -6,24 +6,15 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import software.amazon.awscdk.App;
 import software.amazon.awscdk.AppProps;
 import software.amazon.awscdk.BootstraplessSynthesizer;
-import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.Token;
-import software.amazon.awscdk.services.ec2.ISubnet;
-import software.amazon.awscdk.services.ec2.InstanceClass;
-import software.amazon.awscdk.services.ec2.InstanceSize;
-import software.amazon.awscdk.services.ec2.InstanceType;
 import software.amazon.awscdk.services.ec2.Vpc;
 import software.amazon.awscdk.services.ecs.AwsLogDriverProps;
-import software.amazon.awscdk.services.ecs.CloudMapNamespaceOptions;
-import software.amazon.awscdk.services.ecs.CloudMapOptions;
 import software.amazon.awscdk.services.ecs.Cluster;
 import software.amazon.awscdk.services.ecs.ContainerDefinitionOptions;
 import software.amazon.awscdk.services.ecs.ContainerImage;
@@ -32,16 +23,9 @@ import software.amazon.awscdk.services.ecs.FargateTaskDefinition;
 import software.amazon.awscdk.services.ecs.LogDriver;
 import software.amazon.awscdk.services.ecs.PortMapping;
 import software.amazon.awscdk.services.ecs.Protocol;
-import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
-import software.amazon.awscdk.services.msk.CfnCluster;
-import software.amazon.awscdk.services.rds.Credentials;
-import software.amazon.awscdk.services.rds.DatabaseInstance;
-import software.amazon.awscdk.services.rds.DatabaseInstanceEngine;
-import software.amazon.awscdk.services.rds.PostgresEngineVersion;
-import software.amazon.awscdk.services.rds.PostgresInstanceEngineProps;
-import software.amazon.awscdk.services.route53.CfnHealthCheck;
+import software.amazon.awscdk.services.rds.CfnDBInstance;
 
 public class MiniStack extends Stack {
 
@@ -54,77 +38,41 @@ public class MiniStack extends Stack {
 				.vpcName("PatientManagementVpc")
 				// AZs: Availability Zones
 				.maxAzs(2)
+				// MiniStack does not support AWS::EC2::EIP / AWS::EC2::NatGateway.
+				// Disable NAT gateways to synthesize template that only contain esource types
+				// MiniStack can provide.
+				.natGateways(0)
 				.build();
 	}
 
-	// auth-service.patient-management.local
 	private Cluster createEcsCluster() {
 
 		return Cluster.Builder.create(this, "PatientManagementCluster")
 				.vpc(vpc)
-				// Cloud Map namespace: service discovery in AWS ECS
-				// allow microservices to find and communicate with each other
-				.defaultCloudMapNamespace(CloudMapNamespaceOptions.builder()
-						.name("patient-management.local")
-						.build())
+				// MiniStack does not support AWS::ServiceDiscovery::PrivateDnsNamespace,
+				// instead use the docker-compose network for service-to-service
+				// communication (service name == container hostname).
 				.build();
 	}
 
-	private DatabaseInstance createDatabase(String id, String dbName) {
+	private CfnDBInstance createDatabase(String id, String dbName,
+			String masterUsername, String masterPassword) {
 
-		return DatabaseInstance.Builder
-				.create(this, id)
-				.engine(DatabaseInstanceEngine.postgres(
-						PostgresInstanceEngineProps.builder()
-								.version(PostgresEngineVersion.VER_18_3)
-								.build()))
-				.vpc(vpc)
-				// instanceType: a combination of CPU, memory, storage, and networking capacity
-				.instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
-				.allocatedStorage(20) // 20 GB
-				.credentials(Credentials.fromGeneratedSecret("admin_user"))
-				.databaseName(dbName)
-				// destroy the database when the stack is deleted
-				.removalPolicy(RemovalPolicy.DESTROY)
-				.build();
-	}
-
-	private CfnHealthCheck createHealthCheck(DatabaseInstance db, String id) {
-
-		return CfnHealthCheck.Builder.create(this, id)
-				.healthCheckConfig(CfnHealthCheck.HealthCheckConfigProperty.builder()
-						.type("TCP")
-						.port(Token.asNumber(db.getDbInstanceEndpointPort()))
-						.ipAddress(db.getDbInstanceEndpointAddress())
-						.requestInterval(30) // seconds
-						// Try 3 times once every 30 seconds before report a failure
-						.failureThreshold(3)
-						.build())
-				.build();
-	}
-
-	private CfnCluster createMskCluster() {
-
-		return CfnCluster.Builder.create(this, "MskCluster")
-				.clusterName("kafka-cluster")
-				.kafkaVersion("2.8.1")
-				.numberOfBrokerNodes(1)
-				// Connect VPC to all the broker nodes in the cluster using private subnets
-				.brokerNodeGroupInfo(CfnCluster.BrokerNodeGroupInfoProperty.builder()
-						.instanceType("kafka.t3.small")
-						.clientSubnets(vpc.getPrivateSubnets().stream()
-								.map(ISubnet::getSubnetId)
-								.collect(Collectors.toList()))
-						// Specify how many brokers get distributed across AZs
-						.brokerAzDistribution("DEFAULT")
-						.build())
+		return CfnDBInstance.Builder.create(this, id)
+				.engine("postgres")
+				.dbInstanceClass("db.t3.micro")
+				.allocatedStorage("20") // 20 GB
+				.masterUsername(masterUsername)
+				.masterUserPassword(masterPassword)
+				.dbName(dbName)
 				.build();
 	}
 
 	// FargateService: a type of ECS service
 	// easy to start, stop and scale ECS task that run in difference containers
 	private FargateService createFargateService(String id, String imageName, List<Integer> ports,
-			DatabaseInstance db, Map<String, String> additionalEnvVars) {
+			CfnDBInstance db, String dbName, String dbUsername, String dbPassword,
+			Map<String, String> additionalEnvVars) {
 
 		FargateTaskDefinition taskDefinition = FargateTaskDefinition.Builder.create(this, id + "Task")
 				.cpu(256) // cpu units
@@ -151,21 +99,22 @@ public class MiniStack extends Stack {
 						.build()));
 
 		Map<String, String> envVars = new HashMap<>();
-		envVars.put("SPRING_KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
+		// MiniStack does not support AWS::MSK::Cluster,
+		// so Kafka runs as a docker-compose service.
+		envVars.put("SPRING_KAFKA_BOOTSTRAP_SERVERS", "kafka:9092");
 
 		if (additionalEnvVars != null) {
 			envVars.putAll(additionalEnvVars);
 		}
 
 		if (db != null) {
-			envVars.put("SPRING_DATASOURCE_URL", "jdbc:postgresql://%s:%s/%s-db".formatted(
-					db.getDbInstanceEndpointAddress(),
-					db.getDbInstanceEndpointPort(),
-					imageName));
+			envVars.put("SPRING_DATASOURCE_URL", "jdbc:postgresql://%s:%s/%s".formatted(
+					db.getAttrEndpointAddress(),
+					db.getAttrEndpointPort(),
+					dbName));
 
-			envVars.put("SPRING_DATASOURCE_USERNAME", "admin_user");
-			envVars.put("SPRING_DATASOURCE_PASSWORD",
-					db.getSecret().secretValueFromJson("password").toString());
+			envVars.put("SPRING_DATASOURCE_USERNAME", dbUsername);
+			envVars.put("SPRING_DATASOURCE_PASSWORD", dbPassword);
 			envVars.put("SPRING_JPA_HIBERNATE_DDL_AUTO", "update");
 			envVars.put("SPRING_SQL_INIT_MODE", "always");
 			// Make sure the database is ready
@@ -181,10 +130,6 @@ public class MiniStack extends Stack {
 				.taskDefinition(taskDefinition)
 				.assignPublicIp(false)
 				.serviceName(imageName)
-				// ECS Service Discovery
-				.cloudMapOptions(CloudMapOptions.builder()
-						.name(imageName)
-						.build())
 				.build();
 	}
 
@@ -270,9 +215,9 @@ public class MiniStack extends Stack {
 		ContainerDefinitionOptions containerOptions = ContainerDefinitionOptions.builder()
 				.image(ContainerImage.fromRegistry("api-gateway"))
 				.environment(Map.of(
-						"SPRING_PROFILES_ACTIVE", "prod",
-						"AUTH_SERVICE_ADDRESS", "http://auth-service.patient-management.local:" +
-								envVars.getOrDefault("API_GATEWAY_PORT", "4004")))
+						"SPRING_PROFILES_ACTIVE", "prod", // = application-prod.yml
+						"AUTH_SERVICE_ADDRESS", "http://host.docker.internal:" +
+								envVars.getOrDefault("AUTH_SERVICE_PORT", "4004")))
 				.portMappings(List.of(Integer.parseInt(envVars.getOrDefault(
 						"API_GATEWAY_PORT", "4003"))).stream()
 						.map(port -> PortMapping.builder()
@@ -294,20 +239,16 @@ public class MiniStack extends Stack {
 		// image -> container -> taskDefinition -> service
 		taskDefinition.addContainer("ApiGatewayContainer", containerOptions);
 
-		ApplicationLoadBalancedFargateService apiGatewayService =
-
-				ApplicationLoadBalancedFargateService.Builder
-						.create(this, "ApiGatewayService")
-						.cluster(ecsCluster)
-						.taskDefinition(taskDefinition)
-						.serviceName("api-gateway")
-						.desiredCount(1) // how many instances of the service
-						// How long the application load balance waits for the service to start
-						.healthCheckGracePeriod(Duration.seconds(60))
-						.cloudMapOptions(CloudMapOptions.builder()
-								.name("api-gateway")
-								.build())
-						.build();
+		// MiniStack does not support AWS::ElasticLoadBalancingV2::LoadBalancer /
+		// Listener / TargetGroup or standalone SecurityGroupIngress/Egress rules,
+		// so the API gateway is deployed as a plain Fargate service reachable on
+		// the docker-compose network.
+		FargateService.Builder.create(this, "ApiGatewayService")
+				.cluster(ecsCluster)
+				.taskDefinition(taskDefinition)
+				.serviceName("api-gateway")
+				.assignPublicIp(false)
+				.build();
 	}
 
 	public MiniStack(final App scope, final String id, final StackProps props) {
@@ -315,23 +256,21 @@ public class MiniStack extends Stack {
 		super(scope, id, props);
 		this.vpc = createVpc();
 
-		// RDS
-		DatabaseInstance authServiceDb = createDatabase(
-				"AuthServiceDb", "auth-service-db");
-		DatabaseInstance patientServiceDb = createDatabase(
-				"PatientServiceDb", "patient-service-db");
-		CfnHealthCheck authServiceDbHealthCheck = createHealthCheck(
-				authServiceDb, "AuthServiceDbHealthCheck");
-		CfnHealthCheck patientServiceDbHealthCheck = createHealthCheck(
-				patientServiceDb, "PatientServiceDbHealthCheck");
-
-		// MSK
-		CfnCluster mskCluster = createMskCluster();
-
-		// ECS
-		this.ecsCluster = createEcsCluster();
-
 		Map<String, String> envVars = loadEnvVariables();
+
+		String authDbUser = envVars.getOrDefault("AUTH_SERVICE_DB_USER", "admin_user");
+		String authDbPassword = envVars.getOrDefault("AUTH_SERVICE_DB_PASSWORD", "password");
+		String patientDbUser = envVars.getOrDefault("PATIENT_SERVICE_DB_USER", "admin_user");
+		String patientDbPassword = envVars.getOrDefault("PATIENT_SERVICE_DB_PASSWORD", "password");
+
+		// RDS (Relational Database Service)
+		CfnDBInstance authServiceDb = createDatabase(
+				"AuthServiceDb", "auth-service-db", authDbUser, authDbPassword);
+		CfnDBInstance patientServiceDb = createDatabase(
+				"PatientServiceDb", "patient-service-db", patientDbUser, patientDbPassword);
+
+		// ECS (Elastic Container Service)
+		this.ecsCluster = createEcsCluster();
 
 		String jwtSecret = envVars.get("JWT_SECRET");
 		if (jwtSecret == null || jwtSecret.isBlank()) {
@@ -343,46 +282,44 @@ public class MiniStack extends Stack {
 				"AuthService",
 				"auth-service",
 				List.of(Integer.parseInt(envVars.getOrDefault(
-						"API_GATEWAY_PORT", "4004"))),
-				authServiceDb,
+						"AUTH_SERVICE_PORT", "4004"))),
+				authServiceDb, "auth-service-db", authDbUser, authDbPassword,
 				Map.of("JWT_SECRET", jwtSecret));
 		authService.getNode().addDependency(authServiceDb);
-		authService.getNode().addDependency(authServiceDbHealthCheck);
 
 		FargateService billingService = createFargateService(
 				"BillingService",
 				"billing-service",
 				List.of(
 						Integer.parseInt(envVars.getOrDefault(
-								"API_GATEWAY_PORT", "4001")),
+								"BILLING_SERVICE_PORT", "4001")),
 						Integer.parseInt(envVars.getOrDefault(
 								"GRPC_SERVER_PORT", "9001"))),
-				null, null);
+				null, null, null, null, null);
 
 		FargateService analyticsService = createFargateService(
 				"AnalyticsService",
 				"analytics-service",
 				List.of(Integer.parseInt(envVars.getOrDefault(
-						"API_GATEWAY_PORT", "4002"))),
-				null, null);
-		analyticsService.getNode().addDependency(mskCluster);
+						"ANALYTICS_SERVICE_PORT", "4002"))),
+				null, null, null, null, null);
 
 		FargateService patientService = createFargateService(
 				"PatientService",
 				"patient-service",
 				List.of(Integer.parseInt(envVars.getOrDefault(
-						"API_GATEWAY_PORT", "4000"))),
-				patientServiceDb,
+						"PATIENT_SERVICE_PORT", "4000"))),
+				patientServiceDb, "patient-service-db", patientDbUser, patientDbPassword,
 				Map.of(
 						"BILLING_SERVICE_ADDRESS",
-						"http://billing-service.patient-management.local:" + envVars.getOrDefault(
-								"API_GATEWAY_PORT", "4001"),
+						"http://billing-service:" + envVars.getOrDefault(
+								"BILLING_SERVICE_PORT", "4001"),
 						"BILLING_SERVICE_GRPC_PORT", envVars.getOrDefault(
 								"GRPC_SERVER_PORT", "9001")));
 		patientService.getNode().addDependency(patientServiceDb);
-		patientService.getNode().addDependency(patientServiceDbHealthCheck);
 		patientService.getNode().addDependency(billingService);
-		patientService.getNode().addDependency(mskCluster);
+
+		createApiGatewayService();
 	}
 
 	public static void main(final String[] args) {

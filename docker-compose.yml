@@ -159,6 +159,18 @@ services:
       retries: 5
       start_period: 30s
 
+  ministack:
+    image: ministackorg/ministack:latest
+    container_name: ministack-aws-local
+    ports:
+      - "4566:4566"
+    environment:
+      - DEBUG=1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - patient-management-msa
+
 volumes:
   patient-service-db-data:
   auth-service-db-data:

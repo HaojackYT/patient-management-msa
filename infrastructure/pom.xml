@@ -32,4 +32,20 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+
+            <!-- Source: https://mvnrepository.com/artifact/org.codehaus.mojo/exec-maven-plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.pm.stack.MiniStack</mainClass>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
+
 </project>
