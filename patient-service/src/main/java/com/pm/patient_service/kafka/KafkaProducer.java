@@ -6,7 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.pm.patient_service.exception.GlobalExceptionHandler;
-import com.pm.patient_service.model.Patient;
+import com.pm.patient_service.model.entity.Patient;
 
 import patient.events.PatientEvent;
 

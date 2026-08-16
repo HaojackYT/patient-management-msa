@@ -13,7 +13,7 @@ import com.pm.patient_service.exception.PatientNotFoundException;
 import com.pm.patient_service.grpc.BillingServiceGrpcClient;
 import com.pm.patient_service.kafka.KafkaProducer;
 import com.pm.patient_service.mapper.PaitentMapper;
-import com.pm.patient_service.model.Patient;
+import com.pm.patient_service.model.entity.Patient;
 import com.pm.patient_service.repository.PatientRepository;
 
 @Service

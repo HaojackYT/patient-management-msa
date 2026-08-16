@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
-import com.pm.patient_service.model.Patient;
+import com.pm.patient_service.model.entity.Patient;
 
 public class PaitentMapper {
     public static PatientResponseDTO toDTO(Patient patient) {
