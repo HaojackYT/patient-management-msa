@@ -1,5 +1,8 @@
 package com.pm.patient_service.model.datatype;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -9,6 +12,10 @@ import jakarta.persistence.Transient;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+
+enum IdentifierUse {
+    usual, official, temp, secondary, old
+}
 
 @Embeddable
 public class Identifier {
@@ -23,10 +30,11 @@ public class Identifier {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "identifier_use")
-    private Use use;
+    private IdentifierUse use;
 
     @Valid
-    @Embedded
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "identifier_type", columnDefinition = "jsonb")
     private CodeableConcept type;
 
     @NotNull(message = "Identifier system is mandatory")
@@ -50,11 +58,11 @@ public class Identifier {
     @Column(name = "identifier_assigner_reference")
     private String assignerReference; // contain reference string of Organization
 
-    public Use getUse() {
+    public IdentifierUse getUse() {
         return use;
     }
 
-    public void setUse(Use use) {
+    public void setUse(IdentifierUse use) {
         this.use = use;
     }
 
@@ -106,8 +114,4 @@ public class Identifier {
         this.assignerReference = assignerReference;
     }
 
-}
-
-enum Use {
-    usual, official, temp, secondary, old
 }
