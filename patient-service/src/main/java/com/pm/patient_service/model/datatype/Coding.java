@@ -1,28 +1,29 @@
 package com.pm.patient_service.model.datatype;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.validation.constraints.Pattern;
 
-@Embeddable
+// avoid crashing when receiving unknown properties from the client
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Coding {
 
     // \S*: does not contain whitespace (can be empty)
     @Pattern(regexp = "\\S*", message = "Coding system must be a valid URI")
-    @Column(name = "coding_system")
     private String system;
 
-    @Column(name = "coding_version")
     private String version;
 
-    @Column(name = "coding_code")
     private String code;
 
-    @Column(name = "coding_display")
     private String display;
 
-    @Column(name = "coding_user_selected")
     private Boolean userSelected;
+
+    public Coding() {
+    }
 
     public String getSystem() {
         return system;

@@ -8,7 +8,6 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Transient;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -32,7 +31,6 @@ public class Identifier {
     @Column(name = "identifier_use")
     private IdentifierUse use;
 
-    @Valid
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "identifier_type", columnDefinition = "jsonb")
     private CodeableConcept type;
@@ -47,16 +45,11 @@ public class Identifier {
     private String value;
 
     @Valid
-    @Embedded
     private Period period;
 
-    // Avoid infinite loop due to
-    // Identifier has Reference and Reference has Identifier
-    @Transient
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "identifier_assigner", columnDefinition = "jsonb")
     private Reference assigner;
-
-    @Column(name = "identifier_assigner_reference")
-    private String assignerReference; // contain reference string of Organization
 
     public IdentifierUse getUse() {
         return use;
@@ -104,14 +97,6 @@ public class Identifier {
 
     public void setAssigner(Reference assigner) {
         this.assigner = assigner;
-    }
-
-    public String getAssignerReference() {
-        return assignerReference;
-    }
-
-    public void setAssignerReference(String assignerReference) {
-        this.assignerReference = assignerReference;
     }
 
 }

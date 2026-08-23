@@ -11,7 +11,7 @@ enum HumanNameUse {
 
 public class HumanName {
 
-    private String use;
+    private HumanNameUse use;
 
     private String text;
 
@@ -26,11 +26,11 @@ public class HumanName {
     @Valid
     private Period period;
 
-    public String getUse() {
+    public HumanNameUse getUse() {
         return use;
     }
 
-    public void setUse(String use) {
+    public void setUse(HumanNameUse use) {
         this.use = use;
     }
 
