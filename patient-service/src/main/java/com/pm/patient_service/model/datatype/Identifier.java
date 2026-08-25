@@ -1,13 +1,5 @@
 package com.pm.patient_service.model.datatype;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -16,7 +8,6 @@ enum IdentifierUse {
     usual, official, temp, secondary, old
 }
 
-@Embeddable
 public class Identifier {
 
     // Schema:[//authority]path[?query][#fragment]
@@ -27,28 +18,22 @@ public class Identifier {
     // fragment: (#([^\s]*))? (optional)
     private static final String URI_REGEX = "^([^:/?#\\s]+):(//([^/?#\\s]*))?([^?#\\s]*)(\\?([^#\\s]*))?(#([^\\s]*))?$";
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "identifier_use")
     private IdentifierUse use;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "identifier_type", columnDefinition = "jsonb")
+    @Valid
     private CodeableConcept type;
 
     @NotNull(message = "Identifier system is mandatory")
-    @Column(name = "identifier_system", nullable = false)
     @Pattern(regexp = URI_REGEX, message = "Identifier system must be a valid URI")
     private String system;
 
     @NotNull(message = "Identifier value is mandatory")
-    @Column(name = "identifier_value", nullable = false)
     private String value;
 
     @Valid
     private Period period;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "identifier_assigner", columnDefinition = "jsonb")
+    @Valid
     private Reference assigner;
 
     public IdentifierUse getUse() {

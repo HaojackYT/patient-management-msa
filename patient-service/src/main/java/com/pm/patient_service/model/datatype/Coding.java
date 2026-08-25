@@ -1,13 +1,7 @@
 package com.pm.patient_service.model.datatype;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import jakarta.validation.constraints.Pattern;
 
-// avoid crashing when receiving unknown properties from the client
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Coding {
 
     // \S*: does not contain whitespace (can be empty)

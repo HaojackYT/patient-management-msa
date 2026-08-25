@@ -1,26 +1,18 @@
 package com.pm.patient_service.model.datatype;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@Embeddable
 public class Reference {
 
-    @Column(name = "reference_reference")
     private String reference;
 
     @Pattern(regexp = "\\S*", message = "Reference type must be a valid URI")
-    @Column(name = "reference_type")
     private String type; // uri
 
     @Valid
-    @Embedded
     private Identifier identifier;
 
-    @Column(name = "reference_display")
     private String display;
 
     public String getReference() {
