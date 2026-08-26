@@ -6,20 +6,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.pm.patient_service.annotation.validators.PeriodValidator;
+import com.pm.patient_service.annotation.validators.FHIRDateValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Target({
-    ElementType.TYPE
+    ElementType.FIELD
 })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = PeriodValidator.class)
-public @interface ValidatePeriod {
+@Constraint(validatedBy = FHIRDateValidator.class)
+public @interface ValidateFHIRDate {
 
-    public String message() default "Invalid period: start date must be <= end date.";
+    public String message() default "Invalid FHIR R4 date format.";
 
     Class<?>[] groups() default {};
 
