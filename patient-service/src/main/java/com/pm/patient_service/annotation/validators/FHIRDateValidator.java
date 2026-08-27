@@ -31,13 +31,12 @@ public class FHIRDateValidator implements ConstraintValidator<ValidateFHIRDate, 
     // YYYY: 0001 -> 9999 ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)
     // MM: 01 -> 12 (0[1-9]|1[0-2])
     // DD: 01 -> 31 (0[1-9]|[1-2][0-9]|3[0-1])
-    private static final String DATE_REGEX =
-        "\\A" +
-        "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)" +
-        "(-(0[1-9]|1[0-2])" +
-        "(-(0[1-9]|[1-2][0-9]|3[0-1]))?" +
-        ")?" +
-        "\\z";
+    private static final String DATE_REGEX = "\\A" +
+            "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)" +
+            "(-(0[1-9]|1[0-2])" +
+            "(-(0[1-9]|[1-2][0-9]|3[0-1]))?" +
+            ")?" +
+            "\\z";
 
     private static final Pattern PATTERN = Pattern.compile(DATE_REGEX);
 

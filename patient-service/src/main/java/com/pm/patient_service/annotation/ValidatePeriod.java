@@ -11,9 +11,7 @@ import com.pm.patient_service.annotation.validators.PeriodValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Target({
-    ElementType.TYPE
-})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = PeriodValidator.class)

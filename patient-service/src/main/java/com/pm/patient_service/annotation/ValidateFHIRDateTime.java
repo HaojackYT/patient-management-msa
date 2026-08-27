@@ -11,9 +11,7 @@ import com.pm.patient_service.annotation.validators.FHIRDateTimeValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Target({
-    ElementType.FIELD
-})
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = FHIRDateTimeValidator.class)

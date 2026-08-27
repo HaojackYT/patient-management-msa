@@ -6,21 +6,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.pm.patient_service.annotation.validators.FHIRDateValidator;
+import com.pm.patient_service.annotation.validators.DeceasedChoiceValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Target({ ElementType.FIELD })
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = FHIRDateValidator.class)
-public @interface ValidateFHIRDate {
+@Constraint(validatedBy = DeceasedChoiceValidator.class)
+public @interface ValidDeceasedChoice {
 
-    public String message() default "Invalid FHIR R4 date format.";
+    String message() default "";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }
