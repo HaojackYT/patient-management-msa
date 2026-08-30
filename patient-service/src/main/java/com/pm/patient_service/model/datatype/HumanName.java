@@ -11,6 +11,9 @@ enum HumanNameUse {
 
 public class HumanName {
 
+    @Valid
+    private List<Extension> extension = new ArrayList<>();
+
     private HumanNameUse use;
 
     private String text;
@@ -25,6 +28,14 @@ public class HumanName {
 
     @Valid
     private Period period;
+
+    public List<Extension> getExtension() {
+        return extension;
+    }
+
+    public void setExtension(List<Extension> extension) {
+        this.extension = extension;
+    }
 
     public HumanNameUse getUse() {
         return use;

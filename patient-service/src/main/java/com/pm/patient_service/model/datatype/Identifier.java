@@ -1,5 +1,8 @@
 package com.pm.patient_service.model.datatype;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -18,6 +21,9 @@ public class Identifier {
     // fragment: (#([^\s]*))? (optional)
     private static final String URI_REGEX = "^([^:/?#\\s]+):(//([^/?#\\s]*))?([^?#\\s]*)(\\?([^#\\s]*))?(#([^\\s]*))?$";
 
+    @Valid
+    private List<Extension> extension = new ArrayList<>();
+
     private IdentifierUse use;
 
     @Valid
@@ -35,6 +41,14 @@ public class Identifier {
 
     @Valid
     private Reference assigner;
+
+    public List<Extension> getExtension() {
+        return extension;
+    }
+
+    public void setExtension(List<Extension> extension) {
+        this.extension = extension;
+    }
 
     public IdentifierUse getUse() {
         return use;
