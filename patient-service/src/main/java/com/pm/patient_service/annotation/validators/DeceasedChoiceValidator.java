@@ -6,7 +6,8 @@ import com.pm.patient_service.dto.PatientRequestDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class DeceasedChoiceValidator implements ConstraintValidator<ValidDeceasedChoice, PatientRequestDTO> {
+public class DeceasedChoiceValidator implements
+        ConstraintValidator<ValidDeceasedChoice, PatientRequestDTO> {
 
     @Override
     public boolean isValid(PatientRequestDTO dto, ConstraintValidatorContext context) {
