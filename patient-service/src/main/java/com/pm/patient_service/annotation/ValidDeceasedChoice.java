@@ -17,7 +17,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = DeceasedChoiceValidator.class)
 public @interface ValidDeceasedChoice {
 
-    String message() default "";
+    String message() default "Must have either deceasedBoolean or deceasedDateTime, but not both";
 
     Class<?>[] groups() default {};
 

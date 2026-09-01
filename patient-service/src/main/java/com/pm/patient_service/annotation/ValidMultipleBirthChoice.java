@@ -17,6 +17,8 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = MultipleBirthChoiceValidator.class)
 public @interface ValidMultipleBirthChoice {
 
+    String message() default "Must have either multipleBirthBoolean or multipleBirthInteger, but not both";
+
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
