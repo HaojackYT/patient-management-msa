@@ -1,4 +1,4 @@
-﻿package com.pm.patient_service.annotation.validators;
+package com.pm.patient_service.annotation.validators;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

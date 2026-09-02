@@ -26,8 +26,7 @@ class PeriodValidatorTest {
         period = new Period();
     }
 
-
-    @Test // integration between @PeriodValidator and Jakarta Bean Validation Container/Factory 
+    @Test // integration between @PeriodValidator and Jakarta Bean Validation Factory
     void constraintViolationReportedViaValidatorFactory() {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             Validator javaxValidator = factory.getValidator();
