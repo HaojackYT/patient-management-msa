@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,15 @@ class FHIRDateTimeValidatorTest {
 
     private FHIRDateTimeValidator validator;
 
+    private static Validator jakartaValidator;
+
+    @BeforeAll
+    static void setUpValidator() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            jakartaValidator = factory.getValidator();
+        }
+    }
+
     @BeforeEach
     void setUp() {
         validator = new FHIRDateTimeValidator();
@@ -27,29 +37,25 @@ class FHIRDateTimeValidatorTest {
 
     @Test
     void constraintViolationReportedViaValidatorFactory() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator jakartaValidator = factory.getValidator();
+        Period invalid = new Period();
+        invalid.setStart("2024-02-30T00:00:00Z"); // Invalid calendar date
+        invalid.setEnd("2024-05-17T14:30:00Z");
 
-            Period invalid = new Period();
-            invalid.setStart("2024-02-30T00:00:00Z"); // Invalid calendar date
-            invalid.setEnd("2024-05-17T14:30:00Z");
+        Set<ConstraintViolation<Period>> violations = jakartaValidator.validate(invalid);
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
 
-            Set<ConstraintViolation<Period>> violations = jakartaValidator.validate(invalid);
-            assertFalse(violations.isEmpty());
-            assertTrue(violations.stream()
-                    .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
+        Period valid = new Period();
+        valid.setStart("2024-05-17T14:30:00Z");
+        valid.setEnd("2024-12-31T10:00:00Z");
+        assertTrue(jakartaValidator.validate(valid).isEmpty());
 
-            Period valid = new Period();
-            valid.setStart("2024-05-17T14:30:00Z");
-            valid.setEnd("2024-12-31T10:00:00Z");
-            assertTrue(jakartaValidator.validate(valid).isEmpty());
-
-            Period missingStart = new Period();
-            missingStart.setEnd("2024-05-17T14:30:00Z");
-            violations = jakartaValidator.validate(missingStart);
-            assertTrue(violations.stream()
-                    .noneMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
-        }
+        Period missingStart = new Period();
+        missingStart.setEnd("2024-05-17T14:30:00Z");
+        violations = jakartaValidator.validate(missingStart);
+        assertTrue(violations.stream()
+                .noneMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
     }
 
     @Test

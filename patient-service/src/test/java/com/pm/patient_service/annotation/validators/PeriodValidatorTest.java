@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,15 @@ class PeriodValidatorTest {
     private PeriodValidator validator;
     private Period period;
 
+    private static Validator jakartaValidator;
+
+    @BeforeAll
+    static void setUpValidator() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            jakartaValidator = factory.getValidator();
+        }
+    }
+
     @BeforeEach
     void setUp() {
         validator = new PeriodValidator();
@@ -28,24 +38,20 @@ class PeriodValidatorTest {
 
     @Test // integration between @PeriodValidator and Jakarta Bean Validation Factory
     void constraintViolationReportedViaValidatorFactory() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator javaxValidator = factory.getValidator();
+        Period invalid = new Period();
+        // start > end
+        invalid.setStart("2024-12-31T10:00:00Z");
+        invalid.setEnd("2024-01-01T10:00:00Z");
 
-            Period invalid = new Period();
-            // start > end
-            invalid.setStart("2024-12-31T10:00:00Z");
-            invalid.setEnd("2024-01-01T10:00:00Z");
+        Set<ConstraintViolation<Period>> violations = jakartaValidator.validate(invalid);
+        assertFalse(violations.isEmpty());
 
-            Set<ConstraintViolation<Period>> violations = javaxValidator.validate(invalid);
-            assertFalse(violations.isEmpty());
+        Period valid = new Period();
+        // start < end
+        valid.setStart("2024-01-01T10:00:00Z");
+        valid.setEnd("2024-12-31T10:00:00Z");
 
-            Period valid = new Period();
-            // start < end
-            valid.setStart("2024-01-01T10:00:00Z");
-            valid.setEnd("2024-12-31T10:00:00Z");
-
-            assertTrue(javaxValidator.validate(valid).isEmpty());
-        }
+        assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
 
     // Custom Validator range

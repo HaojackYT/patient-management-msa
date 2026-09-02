@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,15 @@ class AttachmentValidatorTest {
     private AttachmentValidator validator;
     private Attachment attachment;
 
+    private static Validator jakartaValidator;
+
+    @BeforeAll
+    static void setUpValidator() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            jakartaValidator = factory.getValidator();
+        }
+    }
+
     @BeforeEach
     void setUp() {
         validator = new AttachmentValidator();
@@ -31,30 +41,27 @@ class AttachmentValidatorTest {
     @Test // integration between @ValidateFHIRAttachment and Jakarta Bean Validation
           // Factory
     void constraintViolationReportedViaValidatorFactory() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator jakartaValidator = factory.getValidator();
 
-            Attachment invalid = new Attachment();
-            // Without contentType
-            invalid.setData("patient photo".getBytes());
+        Attachment invalid = new Attachment();
+        // Without contentType
+        invalid.setData("patient photo".getBytes());
 
-            Set<ConstraintViolation<Attachment>> violations = jakartaValidator.validate(invalid);
-            assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<Attachment>> violations = jakartaValidator.validate(invalid);
+        assertFalse(violations.isEmpty());
 
-            // Empty property path -> class-level constraint violation
-            ConstraintViolation<Attachment> violation = violations.iterator().next();
-            assertEquals("", violation.getPropertyPath().toString());
-            assertEquals("If the Attachment has data, it SHALL have a contentType",
-                    violation.getMessage());
-            assertTrue(violation.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRAttachment);
+        // Empty property path -> class-level constraint violation
+        ConstraintViolation<Attachment> violation = violations.iterator().next();
+        assertEquals("", violation.getPropertyPath().toString());
+        assertEquals("If the Attachment has data, it SHALL have a contentType",
+                violation.getMessage());
+        assertTrue(violation.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRAttachment);
 
-            Attachment valid = new Attachment();
-            valid.setContentType("image/png");
-            valid.setLanguage("vi-VN");
-            valid.setData("patient photo".getBytes());
+        Attachment valid = new Attachment();
+        valid.setContentType("image/png");
+        valid.setLanguage("vi-VN");
+        valid.setData("patient photo".getBytes());
 
-            assertTrue(jakartaValidator.validate(valid).isEmpty());
-        }
+        assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
 
     // Custom Validator range
@@ -161,7 +168,7 @@ class AttachmentValidatorTest {
         attachment.setData("patient photo".getBytes());
         attachment.setLanguage("en_US"); // invalid BCP-47
 
-        Set<ConstraintViolation<Attachment>> violations = validate();
+        Set<ConstraintViolation<Attachment>> violations = validate(attachment);
         assertTrue(violations.stream().anyMatch(v -> "language".equals(v.getPropertyPath().toString())));
         assertTrue(violations.stream().anyMatch(
                 v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRAttachment));
@@ -169,18 +176,16 @@ class AttachmentValidatorTest {
 
     // Helper methods
 
-    private Set<ConstraintViolation<Attachment>> validate() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            return factory.getValidator().validate(attachment);
-        }
+    private Set<ConstraintViolation<Attachment>> validate(Attachment targetObject) {
+        return jakartaValidator.validate(targetObject);
     }
 
     private boolean hasAnyViolation() {
-        return !validate().isEmpty();
+        return !validate(attachment).isEmpty();
     }
 
     private boolean hasViolationOnPath(String path) {
-        return validate().stream().anyMatch(v -> path.equals(v.getPropertyPath().toString()));
+        return validate(attachment).stream().anyMatch(v -> path.equals(v.getPropertyPath().toString()));
     }
 
 }

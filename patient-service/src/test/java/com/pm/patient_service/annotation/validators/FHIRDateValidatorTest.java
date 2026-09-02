@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,15 @@ class FHIRDateValidatorTest {
 
     private FHIRDateValidator validator;
 
+    private static Validator jakartaValidator;
+
+    @BeforeAll
+    static void setUpValidator() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            jakartaValidator = factory.getValidator();
+        }
+    }
+
     @BeforeEach
     void setUp() {
         validator = new FHIRDateValidator();
@@ -27,38 +37,34 @@ class FHIRDateValidatorTest {
 
     @Test
     void constraintViolationReportedViaValidatorFactory() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator jakartaValidator = factory.getValidator();
+        Set<ConstraintViolation<Patient>> violations = jakartaValidator.validateValue(
+                Patient.class,
+                "birthDate",
+                "2023-02-29"); // Invalid calendar date
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDate));
 
-            Set<ConstraintViolation<Patient>> violations = jakartaValidator.validateValue(
-                    Patient.class,
-                    "birthDate",
-                    "2023-02-29"); // Invalid calendar date
-            assertFalse(violations.isEmpty());
-            assertTrue(violations.stream()
-                    .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDate));
+        assertTrue(jakartaValidator.validateValue(
+                Patient.class,
+                "birthDate",
+                "2024-02-29").isEmpty()); // Valid leap-year date
 
-            assertTrue(jakartaValidator.validateValue(
-                    Patient.class,
-                    "birthDate",
-                    "2024-02-29").isEmpty()); // Valid leap-year date
+        // Year-only form
+        assertTrue(jakartaValidator.validateValue(
+                Patient.class,
+                "birthDate",
+                "1995").isEmpty());
+        // Year-month form
+        assertTrue(jakartaValidator.validateValue(
+                Patient.class,
+                "birthDate",
+                "1995-09").isEmpty());
 
-            // Year-only form
-            assertTrue(jakartaValidator.validateValue(
-                    Patient.class,
-                    "birthDate",
-                    "1995").isEmpty());
-            // Year-month form
-            assertTrue(jakartaValidator.validateValue(
-                    Patient.class,
-                    "birthDate",
-                    "1995-09").isEmpty());
-
-            assertTrue(jakartaValidator.validateValue(
-                    Patient.class,
-                    "birthDate",
-                    null).isEmpty());
-        }
+        assertTrue(jakartaValidator.validateValue(
+                Patient.class,
+                "birthDate",
+                null).isEmpty());
     }
 
     @Test
