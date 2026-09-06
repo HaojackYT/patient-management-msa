@@ -38,8 +38,7 @@ class AttachmentValidatorTest {
         attachment = new Attachment();
     }
 
-    @Test // integration between @ValidateFHIRAttachment and Jakarta Bean Validation
-          // Factory
+    @Test
     void constraintViolationReportedViaValidatorFactory() {
 
         Attachment invalid = new Attachment();

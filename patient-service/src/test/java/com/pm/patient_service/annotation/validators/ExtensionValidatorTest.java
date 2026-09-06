@@ -111,8 +111,10 @@ class ExtensionValidatorTest {
     @Test // FHIR ext-1: "Must have either extensions or value[x], not both"
     void bothExtensionsAndValueIsInvalid() {
         extension.setValueDate("2026-08-30");
+
         Extension child = new Extension("child-url");
         child.setValueCode("male");
+
         extension.setExtension(new ArrayList<>(List.of(child)));
         assertFalse(validator.isValid(extension, null));
     }
