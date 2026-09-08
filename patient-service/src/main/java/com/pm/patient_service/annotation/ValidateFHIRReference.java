@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.pm.patient_service.annotation.validators.ContactPointValidator;
+import com.pm.patient_service.annotation.validators.ReferenceValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -14,11 +14,11 @@ import jakarta.validation.Payload;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = ContactPointValidator.class)
-public @interface ValidateContactPoint {
+@Constraint(validatedBy = ReferenceValidator.class)
+public @interface ValidateFHIRReference {
 
-    public String message() default "Invalid ContactPoint: " +
-            "A system is required if a value is provided.";
+    public String message() default "Invalid Reference: " +
+            "SHALL have a contained resource if a local reference is provided";
 
     Class<?>[] groups() default {};
 
