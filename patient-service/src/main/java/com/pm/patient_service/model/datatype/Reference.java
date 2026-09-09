@@ -1,13 +1,14 @@
 package com.pm.patient_service.model.datatype;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
+import com.pm.patient_service.annotation.ValidateFHIRReference;
 
+import jakarta.validation.Valid;
+
+@ValidateFHIRReference
 public class Reference {
 
     private String reference;
 
-    @Pattern(regexp = "\\S*", message = "Reference type must be a valid URI")
     private String type; // uri
 
     @Valid
