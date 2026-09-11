@@ -19,24 +19,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(
-    name = "patient_identifier",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_patient_identifier_system_value",
-            columnNames = {"system", "value"}
-        )
-    },
-    indexes = {
-        @Index(
-            name = "idx_patient_identifier_system_value",
-            columnList = "system,value"
-        )
-    }
-)
+@Table(name = "patient_identifier", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_patient_identifier_system_value", columnNames = { "system", "value" })
+}, indexes = {
+        @Index(name = "idx_patient_identifier_system_value", columnList = "system,value")
+})
 public class PatientIdentifier {
 
     @Id
@@ -51,11 +41,11 @@ public class PatientIdentifier {
     @Column(name = "type", columnDefinition = "jsonb")
     private CodeableConcept type;
 
-    @NotNull(message = "PatientIdentifier system is mandatory")
+    @NotBlank(message = "PatientIdentifier system is mandatory")
     @Column(name = "system", nullable = false)
     private String system;
 
-    @NotNull(message = "PatientIdentifier value is mandatory")
+    @NotBlank(message = "PatientIdentifier value is mandatory")
     @Column(name = "value", nullable = false)
     private String value;
 

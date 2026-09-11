@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 enum IdentifierUse {
@@ -29,11 +29,11 @@ public class Identifier {
     @Valid
     private CodeableConcept type;
 
-    @NotNull(message = "Identifier system is mandatory")
+    @NotBlank(message = "Identifier system is mandatory")
     @Pattern(regexp = URI_REGEX, message = "Identifier system must be a valid URI")
     private String system;
 
-    @NotNull(message = "Identifier value is mandatory")
+    @NotBlank(message = "Identifier value is mandatory")
     private String value;
 
     @Valid

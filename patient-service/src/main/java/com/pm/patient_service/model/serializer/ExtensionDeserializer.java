@@ -31,7 +31,7 @@ public class ExtensionDeserializer extends JsonDeserializer<Extension> {
     public Extension deserialize(JsonParser parser, DeserializationContext context)
             throws IOException {
 
-        JsonNode node = parser.readValueAsTree();
+        JsonNode node = parser.readValueAsTree(); // ObjectNode or ArrayNode or ValueNode
 
         if (node == null || node.isNull()) {
             return null;
@@ -64,16 +64,16 @@ public class ExtensionDeserializer extends JsonDeserializer<Extension> {
         }
 
         for (Map.Entry<String, JsonNode> field : object.properties()) {
-            String name = field.getKey();
+            String key = field.getKey();
 
-            if ("url".equals(name) || "extension".equals(name)) {
+            if ("url".equals(key) || "extension".equals(key)) {
                 continue;
             }
 
-            if (!name.startsWith(Extension.KEY_PREFIX) ||
-                    name.length() <= Extension.KEY_PREFIX.length()) {
+            if (!key.startsWith(Extension.KEY_PREFIX) ||
+                    key.length() <= Extension.KEY_PREFIX.length()) {
                 throw new JsonMappingException(parser,
-                        "Unknown field '" + name + "' in Extension");
+                        "Unknown field '" + key + "' in Extension");
             }
 
             if (field.getValue().isNull()) {
@@ -81,7 +81,7 @@ public class ExtensionDeserializer extends JsonDeserializer<Extension> {
             }
 
             // primitive datatype remains as-is, object/array -> dynamic Map
-            extension.putValue(name, parser.getCodec().treeToValue(
+            extension.putValue(key, parser.getCodec().treeToValue(
                     field.getValue(),
                     Object.class));
         }

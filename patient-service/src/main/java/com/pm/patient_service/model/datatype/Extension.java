@@ -15,7 +15,6 @@ import com.pm.patient_service.model.serializer.ExtensionSerializer;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * FHIR R4 {@code Extension} datatype — dynamic storage as JSON (jsonb).
@@ -48,7 +47,6 @@ public class Extension implements Serializable {
 
     public static final String KEY_PREFIX = "value";
 
-    @NotNull(message = "Extension url is mandatory")
     @NotBlank(message = "Extension url cannot be blank")
     private String url;
 
