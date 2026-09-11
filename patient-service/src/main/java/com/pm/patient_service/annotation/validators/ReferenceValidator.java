@@ -60,9 +60,6 @@ public class ReferenceValidator implements ConstraintValidator<ValidateFHIRRefer
             return true;
         }
 
-        // Local reference: the portion after '#' must not start with '/'
-        // (reference.substring(1,2) != '/' in the R4 FHIRPath expression).
-        // A local reference must be '#id' pointing to a contained resource.
         return !reference.startsWith("#/");
     }
 

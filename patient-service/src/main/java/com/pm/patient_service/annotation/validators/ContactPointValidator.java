@@ -8,11 +8,13 @@ import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for {@link ValidateContactPoint}.
+ * 
  * <p>
  * Implements the HL7 FHIR R4 {@code ContactPoint} invariant <b>cpt-2</b>:
  * "A system is required if a value is provided."
  * (FHIRPath: {@code value.empty() or system.exists()}).
  * </p>
+ * 
  * <p>
  * Note: A blank {@code value} (only whitespace) is treated as absent.
  * </p>

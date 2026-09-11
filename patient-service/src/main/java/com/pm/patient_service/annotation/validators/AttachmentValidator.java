@@ -7,12 +7,17 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
+ * Validator for {@link ValidateFHIRAttachment}.
+ * 
+ * <p>
  * Executes FHIR R4 constraint att-1 for Attachment:
  * "If the Attachment has data, it SHALL have a contentType".
- *
+ * </p>
+ * 
  * <p>
  * Additionally validates:
  * </p>
+ * 
  * <ul>
  * <li>{@code contentType}: must match the FHIR R4 MimeType pattern
  * {@code [^/\s]+/[^/\s]+} (exactly one "/" separator, no whitespace).</li>
