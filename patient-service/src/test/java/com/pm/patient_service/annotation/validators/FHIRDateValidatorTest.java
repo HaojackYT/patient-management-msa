@@ -43,7 +43,8 @@ class FHIRDateValidatorTest {
                 "2023-02-29"); // Invalid calendar date
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream()
-                .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDate));
+                .anyMatch(v -> v.getConstraintDescriptor()
+                        .getAnnotation() instanceof ValidateFHIRDate));
 
         assertTrue(jakartaValidator.validateValue(
                 Patient.class,

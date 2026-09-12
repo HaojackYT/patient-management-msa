@@ -44,7 +44,8 @@ class FHIRDateTimeValidatorTest {
         Set<ConstraintViolation<Period>> violations = jakartaValidator.validate(invalid);
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream()
-                .anyMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
+                .anyMatch(v -> v.getConstraintDescriptor()
+                        .getAnnotation() instanceof ValidateFHIRDateTime));
 
         Period valid = new Period();
         valid.setStart("2024-05-17T14:30:00Z");
@@ -55,7 +56,8 @@ class FHIRDateTimeValidatorTest {
         missingStart.setEnd("2024-05-17T14:30:00Z");
         violations = jakartaValidator.validate(missingStart);
         assertTrue(violations.stream()
-                .noneMatch(v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRDateTime));
+                .noneMatch(v -> v.getConstraintDescriptor()
+                        .getAnnotation() instanceof ValidateFHIRDateTime));
     }
 
     @Test

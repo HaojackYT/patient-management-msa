@@ -53,7 +53,8 @@ class AttachmentValidatorTest {
         assertEquals("", violation.getPropertyPath().toString());
         assertEquals("If the Attachment has data, it SHALL have a contentType",
                 violation.getMessage());
-        assertTrue(violation.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRAttachment);
+        assertTrue(violation.getConstraintDescriptor()
+                .getAnnotation() instanceof ValidateFHIRAttachment);
 
         Attachment valid = new Attachment();
         valid.setContentType("image/png");
@@ -107,7 +108,8 @@ class AttachmentValidatorTest {
     @Test
     void invalidMimeTypesAreRejected() {
         attachment.setData("patient photo".getBytes());
-        for (String bad : new String[] { "png", "image/", "/png", "image /png", "a/b/c", "image/png " }) {
+        for (String bad : new String[] {
+                "png", "image/", "/png", "image /png", "a/b/c", "image/png " }) {
             attachment.setContentType(bad);
             assertTrue(hasViolationOnPath("contentType"), "Expected rejection: " + bad);
         }
@@ -116,7 +118,8 @@ class AttachmentValidatorTest {
     @Test
     void validMimeTypesAreAccepted() {
         attachment.setData("patient photo".getBytes());
-        for (String good : new String[] { "application/pdf", "image/png", "image/jpeg", "text/plain" }) {
+        for (String good : new String[] {
+                "application/pdf", "image/png", "image/jpeg", "text/plain" }) {
             attachment.setContentType(good);
             assertFalse(hasAnyViolation(), "Expected acceptance: " + good);
         }
@@ -168,9 +171,11 @@ class AttachmentValidatorTest {
         attachment.setLanguage("en_US"); // invalid BCP-47
 
         Set<ConstraintViolation<Attachment>> violations = validate(attachment);
-        assertTrue(violations.stream().anyMatch(v -> "language".equals(v.getPropertyPath().toString())));
         assertTrue(violations.stream().anyMatch(
-                v -> v.getConstraintDescriptor().getAnnotation() instanceof ValidateFHIRAttachment));
+                v -> "language".equals(v.getPropertyPath().toString())));
+        assertTrue(violations.stream().anyMatch(
+                v -> v.getConstraintDescriptor()
+                        .getAnnotation() instanceof ValidateFHIRAttachment));
     }
 
     // Helper methods
@@ -184,7 +189,8 @@ class AttachmentValidatorTest {
     }
 
     private boolean hasViolationOnPath(String path) {
-        return validate(attachment).stream().anyMatch(v -> path.equals(v.getPropertyPath().toString()));
+        return validate(attachment).stream().anyMatch(
+                v -> path.equals(v.getPropertyPath().toString()));
     }
 
 }
