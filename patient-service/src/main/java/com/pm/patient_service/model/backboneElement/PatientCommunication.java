@@ -1,12 +1,11 @@
 package com.pm.patient_service.model.backboneElement;
 
 import com.pm.patient_service.annotation.ValidateFHIRLanguageBinding;
-import com.pm.patient_service.model.datatype.BackboneElement;
 import com.pm.patient_service.model.datatype.CodeableConcept;
 
 import jakarta.validation.constraints.NotNull;
 
-public class PatientCommunication extends BackboneElement {
+public class PatientCommunication extends AbstractBackboneElement {
 
     @NotNull(message = "Patient communication language is mandatory")
     @ValidateFHIRLanguageBinding

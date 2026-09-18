@@ -1,11 +1,13 @@
-package com.pm.patient_service.model.datatype;
+package com.pm.patient_service.model.backboneElement;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pm.patient_service.model.datatype.Extension;
+
 import jakarta.validation.Valid;
 
-public abstract class BackboneElement {
+public abstract class AbstractBackboneElement {
 
     @Valid
     private List<Extension> modifierExtension = new ArrayList<>();
