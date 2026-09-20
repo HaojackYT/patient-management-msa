@@ -24,4 +24,36 @@ public class OrganizationContact extends AbstractBackboneElement {
     @Valid
     private Address address;
 
+    public CodeableConcept getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(CodeableConcept purpose) {
+        this.purpose = purpose;
+    }
+
+    public HumanName getName() {
+        return name;
+    }
+
+    public void setName(HumanName name) {
+        this.name = name;
+    }
+
+    public List<ContactPoint> getTelecom() {
+        return telecom;
+    }
+
+    public void setTelecom(List<ContactPoint> telecom) {
+        this.telecom = telecom;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
 }
