@@ -18,12 +18,14 @@ import jakarta.validation.ConstraintValidatorContext;
  * Additionally validates:
  * </p>
  * 
+ * <p>
  * <ul>
  * <li>{@code contentType}: must match the FHIR R4 MimeType pattern
  * {@code [^/\s]+/[^/\s]+} (exactly one "/" separator, no whitespace).</li>
  * <li>{@code language}: must be a well-formed BCP-47 language tag
  * (e.g. {@code en}, {@code vi-VN}, {@code zh-Hans-CN}, {@code es-419}).</li>
  * </ul>
+ * <p>
  *
  * <p>
  * An empty {@code data} array is treated as {@code data.empty()} per the FHIR

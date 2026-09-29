@@ -10,17 +10,21 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
+ * Validator for {@link ValidateFHIRExtension}.
+ * 
+ * <p>
  * Executes FHIR R4 constraint ext-1 for Extension:
  * "Must have either extensions or value[x], not both".
- *
+ * </p>
+ * 
  * <p>
  * Additionally validates:
- * </p>
  * <ul>
  * <li>Must have at least one of the two: {@code extension} or
  * {@code value[x]}.</li>
  * <li>Maximum of one {@code value[x]} element per Extension.</li>
  * </ul>
+ * </p>
  */
 public class ExtensionValidator implements ConstraintValidator<ValidateFHIRExtension, Extension> {
 

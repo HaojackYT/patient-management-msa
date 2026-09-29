@@ -12,6 +12,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for the HL7 FHIR R4 primitive type {@code date}.
+ * 
  * <p>
  * Allowed forms (FHIR R4, datatype "date"):
  * <ul>
@@ -19,6 +20,8 @@ import jakarta.validation.ConstraintValidatorContext;
  * <li>{@code YYYY-MM}</li>
  * <li>{@code YYYY-MM-DD}</li>
  * </ul>
+ * </p>
+ * 
  * In addition to the syntactic pattern, the value must exist in the real
  * (proleptic Gregorian) calendar, e.g. {@code 2023-02-29} and
  * {@code 2024-02-30} are rejected even though their shape matches.

@@ -8,16 +8,19 @@ import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for {@link ValidateFHIRReference}.
+ * 
  * <p>
  * Implements the HL7 FHIR R4 {@code Reference} invariant <b>ref-1</b>:
  * "SHALL have a contained resource if a local reference is provided."
  * (FHIRPath:
  * {@code reference.startsWith('#').not() or (reference.substring(1,2) != '/')}).
  * </p>
+ * 
  * <p>
  * Semantics per <a href="https://hl7.org/fhir/R4/references.html">FHIR R4 -
  * References between Resources</a>:
  * </p>
+ * 
  * <ul>
  * <li>A <b>local reference</b> is a {@code reference} string starting with
  * {@code '#'}, pointing to a contained resource of the same resource
@@ -26,6 +29,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * must not contain {@code '/'} (i.e. {@code #/...} is not a resolvable local
  * reference and violates ref-1).</li>
  * </ul>
+ * 
  * <p>
  * Limitation: the FHIRPath expression of ref-1 can only constrain the syntax of
  * the local reference, because the datatype {@code Reference} has no knowledge
@@ -35,6 +39,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * resource level (a class-level constraint on the containing resource, e.g.
  * Patient).
  * </p>
+ * 
  * <p>
  * Note: A blank {@code reference} (only whitespace) is treated as absent.
  * </p>
