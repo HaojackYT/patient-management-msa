@@ -21,6 +21,10 @@ public abstract class AbstractResource {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public Meta getMeta() {
         return meta;
     }
