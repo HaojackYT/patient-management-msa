@@ -11,12 +11,12 @@ import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for {@link ValidateFHIRExtension}.
- * 
+ *
  * <p>
  * Executes FHIR R4 constraint ext-1 for Extension:
  * "Must have either extensions or value[x], not both".
  * </p>
- * 
+ *
  * <p>
  * Additionally validates:
  * <ul>

@@ -26,7 +26,7 @@ class ReferenceValidatorTest {
     private static Validator jakartaValidator;
 
     private static final String REF_1_MESSAGE = "Invalid Reference: " +
-            "SHALL have a contained resource if a local reference is provided";
+            "The reference SHALL have a contained resource if a local reference is provided";
 
     @BeforeAll
     static void setUpValidator() {

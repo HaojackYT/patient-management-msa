@@ -17,7 +17,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = AttachmentValidator.class)
 public @interface ValidateFHIRAttachment {
 
-    String message() default "Invalid FHIR R4 Attachment.";
+    String message() default "Invalid FHIR R4 Attachment";
 
     Class<?>[] groups() default {};
 

@@ -18,7 +18,7 @@ import jakarta.validation.Payload;
 public @interface ValidateContactPoint {
 
     public String message() default "Invalid ContactPoint: " +
-            "A system is required if a value is provided.";
+            "A system is required if a value is provided";
 
     Class<?>[] groups() default {};
 

@@ -17,7 +17,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = FHIRDateValidator.class)
 public @interface ValidateFHIRDate {
 
-    public String message() default "Invalid FHIR R4 date format.";
+    public String message() default "Invalid FHIR R4 date format";
 
     Class<?>[] groups() default {};
 

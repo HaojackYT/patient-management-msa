@@ -25,7 +25,7 @@ class LanguageBindingValidatorTest {
     private static final String BCP47 = "urn:ietf:bcp:47";
 
     private static final String BINDING_MESSAGE = "Invalid language binding: " +
-            "SHALL consist of a BCP-47 language subtag with an optional region modifier";
+            "The language binding SHALL consist of a BCP-47 language subtag with an optional region modifier";
 
     private LanguageBindingValidator validator;
     private CodeableConcept codeableConcept;

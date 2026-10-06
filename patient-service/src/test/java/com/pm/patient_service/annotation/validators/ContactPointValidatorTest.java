@@ -26,7 +26,7 @@ class ContactPointValidatorTest {
     private static Validator jakartaValidator;
 
     private static final String CPT_2_MESSAGE = "Invalid ContactPoint: " +
-            "A system is required if a value is provided.";
+            "A system is required if a value is provided";
 
     @BeforeAll
     static void setUpValidator() {

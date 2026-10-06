@@ -66,8 +66,6 @@ import jakarta.validation.Payload;
  * shape (2 letters or 3 digits), regardless of whether it is an actually
  * registered ISO 3166-1 / UN M.49 region code (e.g. {@code xx-ZZ}).
  * </p>
- *
- * @see LanguageBindingValidator
  */
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -76,7 +74,7 @@ import jakarta.validation.Payload;
 public @interface ValidateFHIRLanguageBinding {
 
     public String message() default "Invalid language binding: " +
-            "SHALL consist of a BCP-47 language subtag with an optional region modifier";
+            "The language binding SHALL consist of a BCP-47 language subtag with an optional region modifier";
 
     Class<?>[] groups() default {};
 

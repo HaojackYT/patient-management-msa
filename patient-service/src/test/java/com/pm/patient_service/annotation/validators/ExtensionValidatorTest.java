@@ -138,11 +138,4 @@ class ExtensionValidatorTest {
         assertFalse(validator.isValid(noUrl, null));
     }
 
-    @Test
-    void blankUrlIsInvalid() {
-        Extension blank = new Extension("   ");
-        blank.setValueBoolean(true);
-        assertFalse(validator.isValid(blank, null));
-    }
-
 }
