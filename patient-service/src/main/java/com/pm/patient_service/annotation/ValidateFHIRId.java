@@ -20,9 +20,6 @@ import jakarta.validation.Payload;
  * Accepted form: {@code [A-Za-z0-9\-\.]{1,64}} — ids are case-insensitive so no
  * lowercase constraint is applied.
  * </p>
- *
- * @see <a href="https://hl7.org/fhir/R4/datatypes.html#id">FHIR R4 id</a>
- * @see FHIRIdValidator
  */
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -30,7 +27,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = FHIRIdValidator.class)
 public @interface ValidateFHIRId {
 
-    public String message() default "Invalid FHIR R4 id format.";
+    public String message() default "Invalid FHIR R4 id format";
 
     Class<?>[] groups() default {};
 

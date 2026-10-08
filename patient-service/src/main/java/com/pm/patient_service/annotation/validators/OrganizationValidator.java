@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.pm.patient_service.annotation.ValidateOrganization;
 import com.pm.patient_service.model.datatype.Identifier;
-import com.pm.patient_service.model.datatype.Organization;
+import com.pm.patient_service.model.datatype.resource.domainResource.Organization;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

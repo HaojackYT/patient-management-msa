@@ -18,7 +18,7 @@ import jakarta.validation.Payload;
 public @interface ValidateFHIRReference {
 
     public String message() default "Invalid Reference: " +
-            "SHALL have a contained resource if a local reference is provided";
+            "The reference SHALL have a contained resource if a local reference is provided";
 
     Class<?>[] groups() default {};
 

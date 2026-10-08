@@ -18,7 +18,7 @@ import jakarta.validation.Payload;
 public @interface ValidateOrganization {
 
     String message() default "Invalid Organization: " +
-            "SHALL at least have a name or an identifier, and possibly more than one.";
+            "The organization SHALL at least have a name or an identifier, and possibly more than one";
 
     Class<?>[] groups() default {};
 
