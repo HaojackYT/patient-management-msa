@@ -15,8 +15,10 @@ import jakarta.validation.ConstraintValidatorContext;
  * Validator for {@link ValidateFHIRReferenceTarget}.
  * 
  * <p>
- * Enforces the <b>target resource types</b> of each {@link Reference} in a
- * {@code List}.
+ * Enforces the target resource types of a {@link Reference} or
+ * of each {@link Reference} in a {@code List}
+ * ({@code Patient.generalPractitioner}, {@code Organization.partOf},
+ * {@code PractitionerRole.practitioner}).
  * </p>
  * 
  * <p>
@@ -40,7 +42,8 @@ import jakarta.validation.ConstraintValidatorContext;
  * <li>URN-style references ({@code urn:uuid:...}) and references without
  * a resolvable type segment carry no target type information are treated
  * as valid.</li>
- * <li>A {@code null} element in the list is treated as absent.</li>
+ * <li>A {@code null} element (or an element that is not a {@link Reference}) in
+ * the list is treated as absent.</li>
  * </ul>
  * </p>
  * 
@@ -50,7 +53,8 @@ import jakarta.validation.ConstraintValidatorContext;
  * message) instead of failing the whole list.
  * </p>
  */
-public class ReferenceTargetValidator implements ConstraintValidator<ValidateFHIRReferenceTarget, List<Reference>> {
+public class ReferenceTargetValidator implements
+        ConstraintValidator<ValidateFHIRReferenceTarget, Object> {
 
     private Set<String> allowedTargetTypes;
 
@@ -63,42 +67,77 @@ public class ReferenceTargetValidator implements ConstraintValidator<ValidateFHI
     }
 
     @Override
-    public boolean isValid(List<Reference> references, ConstraintValidatorContext context) {
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
 
-        if (references == null) {
+        if (value == null) {
             return true;
         }
 
+        // Single reference: PractitionerRole.practitioner, Organization.partOf, ...
+        if (value instanceof Reference reference) {
+            return isValidReference(reference, null, context);
+        }
+
+        // List of references: e.g. Patient.generalPractitioner
+        if (value instanceof List<?> references) {
+            return isValidReferences(references, context);
+        }
+
+        // The constraint is not applicable to other types
+        return true;
+    }
+
+    /**
+     * Validates the target resource type of a single reference.
+     *
+     * @param location description of the validated element used in the
+     *                 violation message (Patient.generalPractitioner[0], ...)
+     *                 or {@code null} for a single reference
+     */
+    private boolean isValidReference(Reference reference, String location,
+            ConstraintValidatorContext context) {
+
+        String targetType = typeFromTypeUri(reference.getType());
+
+        if (targetType == null) {
+            targetType = typeFromLiteralReference(reference.getReference());
+        }
+
+        // Target type cannot be determined syntactically
+        if (targetType == null) {
+            return true;
+        }
+
+        if (allowedTargetTypes.contains(targetType)) {
+            return true;
+        }
+
+        if (context != null) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(message
+                    + " (" + (location == null ? "reference" : location) + ": '" + targetType + "')")
+                    .addConstraintViolation();
+        }
+
+        return false;
+    }
+
+    /**
+     * Validates the target resource types of each {@link Reference} of a list.
+     */
+    private boolean isValidReferences(List<?> references, ConstraintValidatorContext context) {
+
         boolean valid = true;
-
         for (int i = 0; i < references.size(); i++) {
-            Reference reference = references.get(i);
+            Object element = references.get(i);
 
-            // A null element is treated as absent
-            if (reference == null) {
+            // A null (or non-Reference) element is treated as absent
+            if (!(element instanceof Reference reference)) {
                 continue;
             }
 
-            String targetType = typeFromTypeUri(reference.getType());
-
-            if (targetType == null) {
-                targetType = typeFromLiteralReference(reference.getReference());
-            }
-
-            // Target type cannot be determined syntactically -> constraint satisfied
-            if (targetType == null) {
-                continue;
-            }
-
-            if (!allowedTargetTypes.contains(targetType)) {
+            if (!isValidReference(reference, "references[" + i + "]", context)) {
                 valid = false;
-
-                if (context != null) {
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(message
-                            + " (references[" + i + "]: '" + targetType + "')")
-                            .addConstraintViolation();
-                }
             }
         }
 
@@ -106,7 +145,7 @@ public class ReferenceTargetValidator implements ConstraintValidator<ValidateFHI
     }
 
     /**
-     * Extracts the <b>target resource type</b> from the {@code type} URI.
+     * Extracts the target resource type from the {@code type} URI.
      * ({@code http://.../.../.../Practitioner} → {@code Practitioner}).
      *
      * @return the last non-blank path segment of the URI or {@code null} if

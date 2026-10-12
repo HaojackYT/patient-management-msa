@@ -20,6 +20,12 @@ public @interface ValidateFHIRReferenceTarget {
     /**
      * The allowed FHIR resource types for the referenced targets
      * {@code {"Organization", "Practitioner", "PractitionerRole"}}.
+     *
+     * <p>
+     * The constraint can be applied to a single {@code Reference} field
+     * ({@code Organization.partOf}) or to a {@code List<Reference>} field
+     * ({@code Patient.generalPractitioner}).
+     * </p>
      */
     String[] value();
 
