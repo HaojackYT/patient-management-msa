@@ -41,6 +41,8 @@ class ReferenceValidatorTest {
         reference = new Reference();
     }
 
+    // Integration tests
+
     @Test
     void constraintViolationReportedViaValidatorFactory() {
 
@@ -56,88 +58,6 @@ class ReferenceValidatorTest {
 
         assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
-
-    // Custom Validator range
-
-    @Test
-    void nullObjectIsValid() {
-        assertTrue(validator.isValid(null, null));
-    }
-
-    @Test
-    void nullReferenceIsValid() {
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void emptyStringReferenceIsTreatedAsAbsent() {
-        reference.setReference("");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void blankReferenceIsTreatedAsAbsent() {
-        reference.setReference("   ");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    // ref-1: "SHALL have a contained resource if a local reference is provided."
-
-    // Non-local reference tests
-
-    @Test
-    void literalRelativeReferenceIsValid() {
-        reference.setReference("Patient/123");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void absoluteUrlReferenceIsValid() {
-        reference.setReference("http://example.org/fhir/Patient/123");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void urnReferenceIsValid() {
-        reference.setReference("urn:uuid:0c3151bd-1cbf-4d64-b04d-cd9187a4c6e0");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    // Local reference tests
-
-    @Test
-    void localReferenceWithoutSlashIsValid() {
-        reference.setReference("#my-contained-organization");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void localReferenceStartingWithSlashIsInvalid() {
-        reference.setReference("#/Organization/1");
-        assertFalse(validator.isValid(reference, null));
-    }
-
-    @Test
-    void localReferenceWithSlashLaterIsValid() {
-        reference.setReference("#Organization/1");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    // Edge case tests
-
-    @Test
-    void bareHashIsValidPerLiteralR4Expression() {
-        reference.setReference("#");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    @Test
-    void whitespaceBeforeHashIsTreatedAsExternalReference() {
-        reference.setReference(" #/Organization/1");
-        assertTrue(validator.isValid(reference, null));
-    }
-
-    // Cascade integration
 
     @Test
     void localReferenceViolationCascadesThroughIdentifierAssigner() {
@@ -166,6 +86,81 @@ class ReferenceValidatorTest {
 
         Set<ConstraintViolation<Identifier>> violations = jakartaValidator.validate(identifier);
         assertTrue(violations.isEmpty());
+    }
+
+    // Unit tests
+
+    @Test
+    void nullObjectIsValid() {
+        assertTrue(validator.isValid(null, null));
+    }
+
+    @Test
+    void nullReferenceIsValid() {
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void emptyStringReferenceIsTreatedAsAbsent() {
+        reference.setReference("");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void blankReferenceIsTreatedAsAbsent() {
+        reference.setReference("   ");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    // ref-1: "SHALL have a contained resource if a local reference is provided."
+
+
+    @Test
+    void literalRelativeReferenceIsValid() {
+        reference.setReference("Patient/123");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void absoluteUrlReferenceIsValid() {
+        reference.setReference("http://example.org/fhir/Patient/123");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void urnReferenceIsValid() {
+        reference.setReference("urn:uuid:0c3151bd-1cbf-4d64-b04d-cd9187a4c6e0");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void localReferenceWithoutSlashIsValid() {
+        reference.setReference("#my-contained-organization");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void localReferenceStartingWithSlashIsInvalid() {
+        reference.setReference("#/Organization/1");
+        assertFalse(validator.isValid(reference, null));
+    }
+
+    @Test
+    void localReferenceWithSlashLaterIsValid() {
+        reference.setReference("#Organization/1");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void bareHashIsValidPerLiteralR4Expression() {
+        reference.setReference("#");
+        assertTrue(validator.isValid(reference, null));
+    }
+
+    @Test
+    void whitespaceBeforeHashIsTreatedAsExternalReference() {
+        reference.setReference(" #/Organization/1");
+        assertTrue(validator.isValid(reference, null));
     }
 
 }

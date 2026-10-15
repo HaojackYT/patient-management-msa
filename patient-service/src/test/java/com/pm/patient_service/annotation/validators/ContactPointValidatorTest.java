@@ -41,6 +41,8 @@ class ContactPointValidatorTest {
         contactPoint = new ContactPoint();
     }
 
+    // Integration tests
+
     @Test
     void constraintViolationReportedViaValidatorFactory() {
 
@@ -59,14 +61,12 @@ class ContactPointValidatorTest {
         assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
 
-    // Custom Validator range
+    // Unit tests
 
     @Test
     void nullObjectIsValid() {
         assertTrue(validator.isValid(null, null));
     }
-
-    // cpt-2 rule: "A system is required if a value is provided."
 
     @Test
     void valueWithoutSystemIsInvalid() {

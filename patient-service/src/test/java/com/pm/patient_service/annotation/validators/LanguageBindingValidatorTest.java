@@ -11,9 +11,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.pm.patient_service.model.backboneElement.PatientCommunication;
 import com.pm.patient_service.model.datatype.CodeableConcept;
 import com.pm.patient_service.model.datatype.Coding;
+import com.pm.patient_service.model.datatype.backboneElement.PatientCommunication;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -86,7 +86,7 @@ class LanguageBindingValidatorTest {
                 violations.iterator().next().getMessage());
     }
 
-    // Custom Validator range
+    // Unit tests
 
     @Test
     void nullObjectIsValid() {
@@ -110,8 +110,6 @@ class LanguageBindingValidatorTest {
         codeableConcept.setText("English");
         assertFalse(validator.isValid(codeableConcept, null));
     }
-
-    // Valid BCP-47 forms
 
     @Test
     void twoLetterLanguageCodeIsValid() {
@@ -153,8 +151,6 @@ class LanguageBindingValidatorTest {
                 codeableConceptWithCoding(BCP47, "EN"), null));
     }
 
-    // Invalid BCP-47 forms excluded by the Simple Language value set
-
     @Test
     void scriptSubtagIsInvalid() {
         assertFalse(validator.isValid(
@@ -182,8 +178,6 @@ class LanguageBindingValidatorTest {
         assertFalse(validator.isValid(
                 codeableConceptWithCoding(BCP47, "en-US-x-twain"), null));
     }
-
-    // Malformed codes
 
     @Test
     void LanguageSubtagLengthIsInvalid() {
@@ -225,8 +219,6 @@ class LanguageBindingValidatorTest {
 
         assertFalse(validator.isValid(codeableConcept, null));
     }
-
-    // Alternate code systems (extensible binding semantics)
 
     @Test
     void codingWithNonBcp47SystemIsInvalid() {

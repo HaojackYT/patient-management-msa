@@ -36,6 +36,8 @@ class PeriodValidatorTest {
         period = new Period();
     }
 
+    // Integration tests
+
     @Test // integration between @PeriodValidator and Jakarta Bean Validation Factory
     void constraintViolationReportedViaValidatorFactory() {
         Period invalid = new Period();
@@ -54,7 +56,7 @@ class PeriodValidatorTest {
         assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
 
-    // Custom Validator range
+    // Unit tests
 
     @Test
     void nonPeriodObjectIsValid() {
@@ -78,8 +80,6 @@ class PeriodValidatorTest {
         assertTrue(validator.isValid(period, null));
     }
 
-    // Temporal Business Rules tests
-
     @Test
     void startLaterThanEndIsInvalid() {
         period.setStart("2024-12-31T10:00:00Z");
@@ -100,8 +100,6 @@ class PeriodValidatorTest {
         period.setEnd("2024-12-31T10:00:00Z");
         assertTrue(validator.isValid(period, null));
     }
-
-    // Flexible Date Parsing tests
 
     @Test
     void dateOnlyFormsAreSupported() {

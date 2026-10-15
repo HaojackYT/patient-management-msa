@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.pm.patient_service.annotation.ValidateFHIRId;
+import com.pm.patient_service.model.datatype.resource.domainResource.Organization;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -65,7 +66,30 @@ class FHIRIdValidatorTest {
         assertTrue(jakartaValidator.validate(holder).isEmpty());
     }
 
-    // Custom Validator range
+    @Test
+    void resourceIdIsValidatedViaValidatorFactory() {
+        Organization organization = new Organization();
+        organization.setName("General Hospital");
+        organization.setId("hospital/123");
+
+        Set<ConstraintViolation<Organization>> violations = jakartaValidator.validate(organization);
+        assertFalse(violations.isEmpty());
+        assertEquals("Invalid FHIR R4 id format", violations.iterator().next().getMessage());
+
+        organization.setId("general-hospital");
+        assertTrue(jakartaValidator.validate(organization).isEmpty());
+    }
+
+    @Test
+    void blankResourceIdIsInvalid() {
+        Organization organization = new Organization();
+        organization.setName("General Hospital");
+        organization.setId("   ");
+
+        assertFalse(jakartaValidator.validate(organization).isEmpty());
+    }
+
+    // Unit tests
 
     @Test
     void nullIdIsValid() {

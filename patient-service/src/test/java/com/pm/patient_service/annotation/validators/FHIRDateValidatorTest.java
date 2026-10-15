@@ -35,6 +35,8 @@ class FHIRDateValidatorTest {
         validator = new FHIRDateValidator();
     }
 
+    // Integration tests
+
     @Test
     void constraintViolationReportedViaValidatorFactory() {
         Set<ConstraintViolation<Patient>> violations = jakartaValidator.validateValue(
@@ -68,6 +70,8 @@ class FHIRDateValidatorTest {
                 null).isEmpty());
     }
 
+    // Unit tests
+
     @Test
     void nullValueIsValid() {
         assertTrue(validator.isValid(null, null));
@@ -87,8 +91,6 @@ class FHIRDateValidatorTest {
     void freeTextIsInvalid() {
         assertFalse(validator.isValid("not-a-date", null));
     }
-
-    // Calendar-valid forms
 
     @Test
     void yearOnlyIsValid() {
@@ -117,8 +119,6 @@ class FHIRDateValidatorTest {
         assertTrue(validator.isValid("2024-01-31", null));
         assertTrue(validator.isValid("2024-12-31", null));
     }
-
-    // Calendar-invalid forms
 
     @Test
     void nonLeapYearFebTwentyNineIsRejected() {

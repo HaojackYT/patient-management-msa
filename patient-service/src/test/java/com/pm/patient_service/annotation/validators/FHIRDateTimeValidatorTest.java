@@ -35,6 +35,8 @@ class FHIRDateTimeValidatorTest {
         validator = new FHIRDateTimeValidator();
     }
 
+    // Integration tests
+
     @Test
     void constraintViolationReportedViaValidatorFactory() {
         Period invalid = new Period();
@@ -59,6 +61,8 @@ class FHIRDateTimeValidatorTest {
                 .noneMatch(v -> v.getConstraintDescriptor()
                         .getAnnotation() instanceof ValidateFHIRDateTime));
     }
+
+    // Unit tests
 
     @Test
     void nullValueIsValid() {

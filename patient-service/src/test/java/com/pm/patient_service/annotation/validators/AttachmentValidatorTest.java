@@ -38,6 +38,8 @@ class AttachmentValidatorTest {
         attachment = new Attachment();
     }
 
+    // Integration tests
+
     @Test
     void constraintViolationReportedViaValidatorFactory() {
 
@@ -63,41 +65,6 @@ class AttachmentValidatorTest {
 
         assertTrue(jakartaValidator.validate(valid).isEmpty());
     }
-
-    // Custom Validator range
-
-    @Test
-    void nullObjectIsValid() {
-        assertTrue(validator.isValid(null, null));
-    }
-
-    // data
-
-    @Test
-    void nullDataWithoutContentTypeIsValid() {
-        assertTrue(validator.isValid(attachment, null));
-    }
-
-    @Test
-    void emptyDataWithoutContentTypeIsValid() {
-        attachment.setData(new byte[0]);
-        assertTrue(validator.isValid(attachment, null));
-    }
-
-    @Test
-    void dataWithoutContentTypeIsInvalid() {
-        attachment.setData("patient photo".getBytes());
-        assertFalse(validator.isValid(attachment, null));
-    }
-
-    @Test
-    void dataWithValidContentTypeIsValid() {
-        attachment.setData("patient photo".getBytes());
-        attachment.setContentType("image/png");
-        assertTrue(validator.isValid(attachment, null));
-    }
-
-    // contentType
 
     @Test
     void contentTypeWithoutDataIsStillValidated() {
@@ -125,8 +92,6 @@ class AttachmentValidatorTest {
         }
     }
 
-    // language: BCP-47 (@Pattern, field-level)
-
     @Test
     void languageWithoutDataOrContentTypeIsValid() {
         attachment.setLanguage("vi-VN");
@@ -148,8 +113,6 @@ class AttachmentValidatorTest {
             assertFalse(hasAnyViolation(), "Expected acceptance: " + good);
         }
     }
-
-    // Full-constraint integration
 
     @Test // all field-level constraints + class-level att-1 together
     void fullyPopulatedValidAttachmentHasNoViolations() {
@@ -176,6 +139,37 @@ class AttachmentValidatorTest {
         assertTrue(violations.stream().anyMatch(
                 v -> v.getConstraintDescriptor()
                         .getAnnotation() instanceof ValidateFHIRAttachment));
+    }
+
+    // Unit tests
+
+    @Test
+    void nullObjectIsValid() {
+        assertTrue(validator.isValid(null, null));
+    }
+
+    @Test
+    void nullDataWithoutContentTypeIsValid() {
+        assertTrue(validator.isValid(attachment, null));
+    }
+
+    @Test
+    void emptyDataWithoutContentTypeIsValid() {
+        attachment.setData(new byte[0]);
+        assertTrue(validator.isValid(attachment, null));
+    }
+
+    @Test
+    void dataWithoutContentTypeIsInvalid() {
+        attachment.setData("patient photo".getBytes());
+        assertFalse(validator.isValid(attachment, null));
+    }
+
+    @Test
+    void dataWithValidContentTypeIsValid() {
+        attachment.setData("patient photo".getBytes());
+        attachment.setContentType("image/png");
+        assertTrue(validator.isValid(attachment, null));
     }
 
     // Helper methods
