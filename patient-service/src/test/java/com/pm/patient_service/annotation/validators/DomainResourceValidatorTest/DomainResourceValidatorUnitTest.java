@@ -18,8 +18,7 @@ import com.pm.patient_service.model.datatype.resource.AbstractResource;
 import com.pm.patient_service.model.datatype.resource.domainResource.AbstractDomainResource;
 
 /**
- * Unit tests for {@link DomainResourceValidator} - direct {@code isValid}
- * calls.
+ * Unit tests for {@link DomainResourceValidator}
  */
 class DomainResourceValidatorUnitTest {
 

@@ -24,8 +24,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 /**
- * Integration tests for {@link DomainResourceValidator} via Jakarta Bean
- * Validation.
+ * Integration tests for {@link DomainResourceValidator}
  */
 class DomainResourceValidatorIntegrationTest {
 
